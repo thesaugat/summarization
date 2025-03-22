@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mint-500: oklch(0.72 0.11 178);
+  --color-theme-yellow: #f5e0c5;
+  --color-theme-green: #caecdc;
+  --color-theme-purple: #d3d3f9;
+  --color-theme-red: #edc7c6;
+  --color-theme-header: #f9f8f4;
+  --color-theme-footer: #dea055;
+
+} */

@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - ml_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/
+
+  ml_service:
+    build: ./ml_service
+    ports:
+      - "5001:5000" # Change host port from 5000 to 5001
+
+  mongo:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
