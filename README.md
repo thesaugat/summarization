@@ -40,6 +40,10 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
    ```bash
    git clone <repository-url>
    cd <project-directory>
+2. Build and start all containers:
+    ```bash
+    docker-compose up --build
+3. Access the application:
 
 # Endpoints Overview
 
@@ -48,4 +52,21 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
 | Frontend      | http://localhost:3000/       | React App         |
 | Backend (API) | http://localhost:8000/       | FastAPI           |
 | ML Service    | http://localhost:5001/predict| ML Endpoint       |
-| MongoDB       | mongodb://localhost:27017/   | Database          |
+
+
+### Running Individual Containers
+
+If you want to run individual containers for development or debugging, follow these steps:
+
+#### Frontend
+
+1. Navigate to the frontend directory:
+    ```bash
+    cd frontend
+
+2.  Build and run the frontend container:
+    ```bash
+    docker build -t frontend .
+    docker run -p 3000:80 frontend
+
+3. Access the frontend at http://localhost:3000.
