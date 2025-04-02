@@ -45,6 +45,7 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
     cd frontend && npm install
 3. cd back to project root and build and start all containers:
     ```bash
+    cd ..
     docker-compose up --build
 4. Access the application:
 
@@ -66,10 +67,12 @@ If you want to run individual containers for development or debugging, follow th
 1. Navigate to the frontend directory:
     ```bash
     cd frontend
-
-2.  Build and run the frontend container:
+2. Navigate to frontend directory and install required packages (only if you have not installed before)
+    ```bash
+        npm install
+3.  Build and run the frontend container:
     ```bash
     docker build -t frontend .
     docker run -p 3000:80 frontend
 
-3. Access the frontend at http://localhost:3000.
+4. Access the frontend at http://localhost:3000.
