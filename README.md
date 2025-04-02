@@ -40,10 +40,13 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
    ```bash
    git clone <repository-url>
    cd <project-directory>
-2. Build and start all containers:
+2. Navigate to frontend directory and install required packages
+    ```bash
+    cd frontend && npm install
+3. cd back to project root and build and start all containers:
     ```bash
     docker-compose up --build
-3. Access the application:
+4. Access the application:
 
 # Endpoints Overview
 
