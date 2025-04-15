@@ -23,7 +23,7 @@ const DashboardHome = () => {
       <div className="flex flex-wrap gap-6">
         {/* Checklist Section */}
         <div className="flex-1 min-w-64">
-          <h2 className="text-xl font-bold mb-4">Lorem ipsum.</h2>
+          <h2 className="text-xl font-bold mb-4">Finance Paper</h2>
           
           <div className="space-y-3">
             <div className="flex items-start">

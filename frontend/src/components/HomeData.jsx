@@ -8,16 +8,16 @@ export default function HomeData() {
         {/* Stats Section */}
         <div className="bg-theme-yellow border border-amber-400 p-4 rounded-xl shadow-md flex w-full max-w-3xl justify-around mb-8">
           <div className="text-center">
-            <p className="font-bold">Lorem ipsum</p>
-            <h2 className="text-2xl font-extrabold">1004</h2>
+            <p className="font-bold">Total Papers</p>
+            <h2 className="text-2xl font-extrabold">5000+</h2>
           </div>
           <div className="text-center">
-            <p className="font-bold">Lorem ipsum</p>
-            <h2 className="text-2xl font-extrabold">20</h2>
+            <p className="font-bold">Total Users</p>
+            <h2 className="text-2xl font-extrabold">1000+</h2>
           </div>
           <div className="text-center">
-            <p className="font-bold">Lorem ipsum</p>
-            <h2 className="text-2xl font-extrabold">105</h2>
+            <p className="font-bold">User Rating</p>
+            <h2 className="text-2xl font-extrabold">4.5+</h2>
           </div>
         </div>
 
@@ -25,7 +25,7 @@ export default function HomeData() {
         <div className="flex gap-8 w-full max-w-5xl">
           {/* LHS Section */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-4">Lorem ipsum.</h1>
+            <h1 className="text-3xl font-bold mb-4">Smart Paper Analysis</h1>
             <ul className="space-y-8 mb-4">
               {[...Array(4)].map((_, index) => (
                 <li
@@ -33,7 +33,7 @@ export default function HomeData() {
                   className="flex items-center gap-2 text-gray-600"
                 >
                   <CheckCircle className="text-black" size={20} />
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Upload Any research paper 
                 </li>
               ))}
             </ul>
@@ -45,18 +45,16 @@ export default function HomeData() {
           {/* RHS Section */}
           <div className="flex-1 bg-theme-red border border-red-400 p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-2">
-              Example of research paper
+              Loop holes in fiancial returns.
             </h2>
             <p className="text-gray-700 mb-2">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Once the paper is uploaded data extraction tales place.
             </p>
             <div className="space-y-4">
               <div>
-                <p className="font-bold">Lorem ipsum</p>
+                <p className="font-bold">Data separation</p>
                 <p className="text-gray-700 text-sm">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem
-                  ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum
-                  dolor sit amet, consectetur adipiscing elit.
+                  The extraced data is then segregated into different headings.Title, Subtitle, Summary, Conclusion is separated from the text. These paragraphs then are analysed by LLM and putforth for the prediction for the similarity score of the paper compared to the other papers in the database.
                 </p>
               </div>
               <div>
