@@ -9,7 +9,8 @@ from app.services.fetchpapers_service import fetch_all_papers, fetch_paper_by_id
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5173"
 ]
 
 # 🔹 Enable CORS
