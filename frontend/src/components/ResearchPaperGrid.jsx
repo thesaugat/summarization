@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Heart, Download, Printer, CircleX } from "lucide-react";
 
 const ResearchPaperGrid = () => {
@@ -31,9 +31,34 @@ const ResearchPaperGrid = () => {
       label: "Lorem ipsum",
     }));
 
+  const [papersList, setPapersList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPapers = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/fetch_papers");
+        const data = await res.json();
+        setPapersList(data.papers);
+        console.log("Papers fetched successfully")
+        console.log(data);
+
+      } catch (error) {
+        console.error("Failed to fetch papers: ", error);
+
+      }finally{
+        setLoading(false);
+      }
+    };
+
+    fetchPapers();
+
+  }, []);
+
+
   return (
     <div className="max-w-8xl mx-auto py-10 px-40 bg-theme-header">
-      <h1 className="text-2xl font-bold mb-4">Lorem ipsum.</h1>
+      <h1 className="text-2xl font-bold mb-4">Papers uploaded</h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left side - Paper Grid */}
@@ -81,10 +106,11 @@ const ResearchPaperGrid = () => {
           </div>
 
           {/* Papers grid */}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {papers.map((paper) => (
+            {papersList.map((paper) => (
               <div
-                key={paper.id}
+                key={paper._id}
                 className={`border rounded-lg overflow-hidden cursor-pointer hover:shadow-md ${
                   paper.isGreen
                     ? "bg-green-400 text-white"
@@ -92,21 +118,24 @@ const ResearchPaperGrid = () => {
                 }`}
                 onClick={() => setSelectedPaper(paper)}
               >
+              
                 <div className="p-4">
                   <div
                     className={`text-xs ${
                       paper.isGreen ? "text-green-200" : "text-gray-500"
                     } mb-1`}
                   >
-                    Example of research paper
+                    {paper.file_name} 
                   </div>
-                  <h3 className="text-sm font-medium mb-2">{paper.title}</h3>
+                  
+                  <h3 className="text-sm font-medium mb-2">{paper.preprocessed_text.title}</h3>
+                  
                   <div
                     className={`text-xs ${
                       paper.isGreen ? "text-green-100" : "text-gray-400"
                     } mb-3`}
                   >
-                    {paper.date}
+                    {paper.preprocessed_text?.date || "No date"}
                   </div>
 
                   <div
@@ -114,23 +143,25 @@ const ResearchPaperGrid = () => {
                       paper.isGreen ? "text-green-100" : "text-gray-600"
                     }`}
                   >
-                    {paper.excerpt}
+                    {paper.preprocessed_text?.abstract || "No abstract"}
                   </div>
-
-                  <div className="text-xs font-medium">Lorem ipsum</div>
+            
+                  {/* <div className="text-xs font-medium">Lorem ipsum</div>
                   <div
                     className={`text-xs ${
                       paper.isGreen ? "text-green-200" : "text-gray-600"
                     } mb-1`}
                   >
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </div>
+                  </div> */}
                 </div>
+              
               </div>
             ))}
           </div>
+          
         </div>
-
+          
         {/* Right side - Paper Details */}
         <div className="w-full lg:w-2/5">
           <div className="bg-theme-green border border-green-400 rounded-xl p-6">
