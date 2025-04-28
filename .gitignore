@@ -44,6 +44,8 @@ docker-compose.override.yml
 # MongoDB Data (if using local volume)
 data/db/
 dump/
+backend/mongodb-data/
+
 
 # Misc
 *.zip

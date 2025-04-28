@@ -1,6 +1,6 @@
 import React from "react";
 
-const ProgressCard = ({ color, items }) => {
+const ProgressCard = ({ color, items, paperName, description, insights }) => {
   // Map color names to background and accent colors
   const colorMap = {
     pink: { bg: "bg-theme-red", accent: "bg-red-300" },
@@ -12,15 +12,18 @@ const ProgressCard = ({ color, items }) => {
   const { bg, accent } = colorMap[color];
 
   return (
+
     <div className={`${bg} p-6 rounded-3xl shadow-md w-64`}>
-      <div className="mb-4">
-        <h3 className="font-bold text-lg">Lorem ipsum.</h3>
-        <p className="text-sm">
-          Lorem ipsum dolor sit amet,
-          <br />
-          consetetur sadipscing elitr, sed
-        </p>
+          <div className="mb-4">
+            <h3 className="font-bold text-lg">{paperName}</h3>
+            <p className="text-sm">
+              {description}
+            </p>
       </div>
+
+        
+
+    
 
       {items.map((item, index) => (
         <div key={index} className="mb-4">
@@ -35,7 +38,10 @@ const ProgressCard = ({ color, items }) => {
                 />
               </svg>
             </div>
-            <span className="text-sm">Lorem ipsum.</span>
+
+
+                <span key={index} className="text-sm">{insights?.[index]}</span>
+             
             <span className="ml-auto text-sm">{item.percentage}%</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -54,26 +60,38 @@ const ProgressCardGrid = () => {
   const cards = [
     {
       color: "pink",
-      items: [{ percentage: 30 }, { percentage: 60 }, { percentage: 70 }],
+      paperName: "Finance",
+      description: "Analyze trends in global financial systems.",
+      insights: ["Similarity", "Relevance", " Originality"],
+      items: [{ percentage: 30 }, { percentage: 80 }, { percentage: 80 }],
     },
     {
       color: "green",
-      items: [{ percentage: 30 }, { percentage: 60 }, { percentage: 70 }],
+      paperName: "Technology",
+      description: "Explore innovations in modern digital tech.",
+      insights: ["Similarity", "Relevance", " Originality"],
+      items: [{ percentage: 75 }, { percentage: 50 }, { percentage: 10 }],
     },
     {
       color: "orange",
-      items: [{ percentage: 30 }, { percentage: 60 }, { percentage: 70 }],
+      paperName: "Stock Market",
+      description: "Study market movements and trading behavior.",
+      insights: ["Similarity", "Relevance", " Originality"],
+      items: [{ percentage: 40 }, { percentage: 25 }, { percentage: 5 }],
     },
     {
       color: "purple",
-      items: [{ percentage: 30 }, { percentage: 60 }, { percentage: 70 }],
+      paperName: "Law",
+      description: "Compare legal cases and policy documents.",
+      insights: ["Similarity", "Relevance", " Originality"],
+      items: [{ percentage: 5 }, { percentage: 90 }, { percentage: 100 }],
     },
   ];
 
   return (
     <div className="flex flex-wrap gap-8 justify-center p-20">
       {cards.map((card, index) => (
-        <ProgressCard key={index} color={card.color} items={card.items} />
+        <ProgressCard key={index} color={card.color} items={card.items} paperName={card.paperName} description={card.description} insights={card.insights}/>
       ))}
     </div>
   );

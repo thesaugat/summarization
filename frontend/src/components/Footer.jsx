@@ -12,10 +12,7 @@ const Footer = () => {
           </div>
 
           <p className="text-sm text-gray-800 mt-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
-            et ea rebum.
+          Whether you're a student, researcher, or academic professional, our tool helps you upload papers, extract structured data, and receive AI-driven feedback on how your work aligns with existing literature — making your research journey smoother and smarter.
           </p>
         </div>
 
@@ -23,31 +20,29 @@ const Footer = () => {
         <div className="w-full md:w-3/5 flex flex-row justify-between mt-6 md:mt-0 gap-10">
           {/* First Link Column */}
           <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">Lorem ipsum</h4>
+            <h4 className="font-medium mb-3 text-sm">Quick links</h4>
             <ul className="space-y-2">
-              <li className="text-sm">Link 1</li>
-              <li className="text-sm">Link 2</li>
-              <li className="text-sm">Link 3</li>
+              <li className="text-sm font-extralight"><a href="/file-upload">Upload paper</a> </li>
+              <li className="text-sm font-extralight"><a href="/paper-analysis">Paper analysis</a></li>
+              <li className="text-sm font-extralight"><a href="/history">History</a></li>
             </ul>
           </div>
 
           {/* Second Link Column */}
           <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">Lorem ipsum</h4>
+            <h4 className="font-medium mb-3 text-sm">About</h4>
             <ul className="space-y-2">
-              <li className="text-sm">Link 1</li>
-              <li className="text-sm">Link 2</li>
-              <li className="text-sm">Link 3</li>
+              <li className="text-sm font-extralight">About us</li>
+              
             </ul>
           </div>
 
           {/* Third Link Column */}
           <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">Lorem ipsum</h4>
+            <h4 className="font-medium mb-3 text-sm">Contact us</h4>
             <ul className="space-y-2">
-              <li className="text-sm">Link 1</li>
-              <li className="text-sm">Link 2</li>
-              <li className="text-sm">Link 3</li>
+              <li className="text-sm font-extralight">Mob: +61 1282381286</li>
+              <li className="text-sm font-extralight">support@ipaper.com</li>
             </ul>
           </div>
         </div>
