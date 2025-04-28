@@ -3,4 +3,13 @@ uvicorn
 numpy
 pandas
 scikit-learn
-torch  # If using PyTorch
+langchain
+langchain-community
+google-generativeai
+langchain-google-genai
+chromadb
+google-auth
+google-cloud-aiplatform
+pypdf
+streamlit
+python-dotenv

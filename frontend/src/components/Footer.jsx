@@ -1,49 +1,50 @@
 import React from "react";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="w-full bg-theme-footer p-6">
-      <div className="max-w-6xl mx-auto flex flex-wrap">
-        {/* Logo and Company Description - 1st column */}
-        <div className="w-full md:w-2/5 pr-8">
-          {/* Oval logo placeholder */}
-          <div className="w-24 h-8 bg-amber-700 rounded-full mb-4 flex items-center justify-center">
-            <span className="text-white text-xs">COMPANY</span>
+    <footer className="w-full bg-green-50 border-t border-green-100 py-6 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between gap-6">
+          {/* Project Info */}
+          <div className="w-full md:w-1/2">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">IP</span>
+              </div>
+              <h3 className="font-semibold text-gray-800">iPaper</h3>
+            </div>
+
+            <p className="text-sm text-gray-600">
+              A research paper analysis tool developed as a capstone project at UOW.
+            </p>
+
+            <p className="text-xs text-gray-500 mt-4">
+              &copy; {currentYear} University of Wollongong
+            </p>
           </div>
 
-          <p className="text-sm text-gray-800 mt-8">
-          Whether you're a student, researcher, or academic professional, our tool helps you upload papers, extract structured data, and receive AI-driven feedback on how your work aligns with existing literature — making your research journey smoother and smarter.
-          </p>
-        </div>
+          {/* Links and Contact */}
+          <div className="w-full md:w-1/2 flex justify-between gap-4">
+            {/* Navigation */}
+            <div>
+              <h4 className="font-medium mb-2 text-sm text-green-800">Links</h4>
+              <ul className="space-y-1">
+                <li className="text-sm"><a href="/file-upload" className="text-gray-600 hover:text-green-700">Upload</a></li>
+                <li className="text-sm"><a href="/paper-analysis" className="text-gray-600 hover:text-green-700">Analysis</a></li>
+                <li className="text-sm"><a href="/history" className="text-gray-600 hover:text-green-700">History</a></li>
+              </ul>
+            </div>
 
-        {/* Three link columns in a row */}
-        <div className="w-full md:w-3/5 flex flex-row justify-between mt-6 md:mt-0 gap-10">
-          {/* First Link Column */}
-          <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">Quick links</h4>
-            <ul className="space-y-2">
-              <li className="text-sm font-extralight"><a href="/file-upload">Upload paper</a> </li>
-              <li className="text-sm font-extralight"><a href="/paper-analysis">Paper analysis</a></li>
-              <li className="text-sm font-extralight"><a href="/history">History</a></li>
-            </ul>
-          </div>
-
-          {/* Second Link Column */}
-          <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">About</h4>
-            <ul className="space-y-2">
-              <li className="text-sm font-extralight">About us</li>
-              
-            </ul>
-          </div>
-
-          {/* Third Link Column */}
-          <div className="flex-1">
-            <h4 className="font-medium mb-3 text-sm">Contact us</h4>
-            <ul className="space-y-2">
-              <li className="text-sm font-extralight">Mob: +61 1282381286</li>
-              <li className="text-sm font-extralight">support@ipaper.com</li>
-            </ul>
+            {/* Contact */}
+            <div>
+              <h4 className="font-medium mb-2 text-sm text-green-800">Contact</h4>
+              <ul className="space-y-1">
+                <li className="text-sm text-gray-600">student@uow.edu.au</li>
+                <li className="text-sm text-gray-600">UOW Capstone 2025</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
