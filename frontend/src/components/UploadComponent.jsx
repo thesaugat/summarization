@@ -73,6 +73,44 @@ export default function UploadComponent() {
     }
   };
 
+  // const handleUpload = async () => {
+  //   if (!selectedFile) {
+  //     triggerOverlay("Please upload a file first", false);
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   setProgress(0);
+
+  //   const formData = new FormData();
+  //   formData.append("file", selectedFile);
+
+  //   try {
+  //     // Simulate network delay
+  //     await new Promise(resolve => setTimeout(resolve, 3000));
+
+  //     const res = await fetch("http://127.0.0.1:8000/upload", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     if (!res.ok) {
+  //       throw new Error("Upload failed");
+  //     }
+
+  //     setProgress(100);
+  //     await new Promise(resolve => setTimeout(resolve, 500));
+
+  //     const data = await res.json();
+  //     console.log("Server response", data);
+  //     triggerOverlay("Your paper has been successfully processed! The summary is ready.", true);
+  //   } catch (err) {
+  //     console.error(err);
+  //     triggerOverlay("There was an error processing your file. Please try again.", false);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleUpload = async () => {
     if (!selectedFile) {
       triggerOverlay("Please upload a file first", false);
@@ -92,6 +130,8 @@ export default function UploadComponent() {
       const res = await fetch("http://127.0.0.1:8000/upload", {
         method: "POST",
         body: formData,
+        mode: 'cors',
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -103,7 +143,15 @@ export default function UploadComponent() {
 
       const data = await res.json();
       console.log("Server response", data);
-      triggerOverlay("Your paper has been successfully processed! The summary is ready.", true);
+
+      // Check if ml_result is not null
+      if (data.ml_result !== null && data.ml_result !== "") {
+        // Redirect to paper-analysis page with the data
+        window.location.href = `/paper-analysis?data=${encodeURIComponent(JSON.stringify(data))}`;
+      } else {
+        // Show success message if no redirect
+        triggerOverlay("Your paper has been successfully processed! The summary is ready.", true);
+      }
     } catch (err) {
       console.error(err);
       triggerOverlay("There was an error processing your file. Please try again.", false);
@@ -111,7 +159,6 @@ export default function UploadComponent() {
       setIsLoading(false);
     }
   };
-
   const resetForm = () => {
     setSelectedFile(null);
     setFileName(null);

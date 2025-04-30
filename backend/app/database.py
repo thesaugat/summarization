@@ -1,10 +1,10 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ASCENDING
+import os
 
-MONGO_URL = "mongodb://localhost:27017"
-
-# Initialize MongoDB client
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://mongo:27017")
 client = AsyncIOMotorClient(MONGO_URL)
-db = client["iPaperDB"] 
+db = client["file_db"]
 
-def get_mongo_collection(collection_name: str):
-    return db[collection_name]
+file_collection = db["uploaded_files"]
+result_collection = db["ml_results"]

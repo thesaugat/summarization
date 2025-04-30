@@ -20,24 +20,28 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
-    depends_on:
-      - mongo
-      - ml_service
+    volumes:
+      - ./backend:/app
     environment:
-      - MONGO_URL=mongodb://mongo:27017/
-
-  ml_service:
-    build: ./ml_service
-    ports:
-      - "5001:5000" # Change host port from 5000 to 5001
+      - MONGO_URL=mongodb://mongo:27017
 
   mongo:
     image: mongo
-    container_name: mongodb
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  ml-service:
+    build:
+      context: ./ml-service
+    volumes:
+      - ./ml-service:/app # Mount code so it auto-reloads
+      - ./.env:/app/.env # Mount .env file
+    env_file:
+      - .env
+    ports:
+      - "5001:5001"
 
 volumes:
   mongo_data:
