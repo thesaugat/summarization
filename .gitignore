@@ -49,8 +49,8 @@ docker-compose.override.yml
 data/db/
 dump/
 backend/mongodb-data/
-ml-service/app/temp_files/
-ml-service/app/vectorstore/
+ml-service/temp_files
+ml-service/vectorstore/
 # Misc
 *.zip
 *.tar.gz
