@@ -8,13 +8,32 @@ class FileMeta(BaseModel):
     upload_date: datetime = Field(default_factory=datetime.utcnow)
 
 
-class MLResult(BaseModel):
-    file_id: str
-    title: Optional[str]
-    author: Optional[str]
-    summary: Optional[str]
-    summary_parts: Optional[List[str]]
-    references: Optional[List[str]]
-    citations: Optional[List[str]]
-    keywords: Optional[List[str]]
-    related_paper_ids: Optional[List[str]]
+class FieldData(BaseModel):
+    answer: str
+    sources: str
+    reasoning: str
+
+
+class DetailedSummary(BaseModel):
+    answer: str
+    sources: str
+    reasoning: str
+
+
+class Summary(BaseModel):
+    detailed_summary: DetailedSummary
+    key_points: str
+    abstract: FieldData
+    keywords: FieldData
+
+
+class MLResponse(BaseModel):
+    title: FieldData
+    summary: Summary
+    file_id: Optional[str] = None
+    processed_at: Optional[datetime] = None
+
+
+class FileMeta(BaseModel):
+    file_name: str
+    upload_date: datetime

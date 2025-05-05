@@ -7,10 +7,9 @@ app = FastAPI()
 
 # Define allowed origins for CORS (e.g., allow frontend from localhost)
 origins = [
-    "http://localhost:3000",  # React frontend
-    "http://your-frontend-domain.com",  # Replace with actual domain
-    "http://localhost:5173",  # Allow localhost in general
-    "http://localhost",
+    "http://your-frontend-domain.com",  # Replace with actual domain when published
+    "http://localhost:5173",
+    "http://localhost",  # Allow localhost in general
 ]
 
 # Add CORS middleware

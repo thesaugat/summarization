@@ -13,7 +13,7 @@ const Header = () => {
   // Navigation items with icons for better visual cues
   const navItems = [
     { path: "/file-upload", label: "Upload Paper", icon: <FileText size={18} /> },
-    { path: "/paper-analysis", label: "Paper Analysis", icon: <BookOpen size={18} /> },
+    // { path: "/paper-analysis", label: "Paper Analysis", icon: <BookOpen size={18} /> },
     { path: "/history", label: "History", icon: <History size={18} /> }
   ];
 

@@ -7,4 +7,4 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client["file_db"]
 
 file_collection = db["uploaded_files"]
-result_collection = db["ml_results"]
+ml_result_collection = db["ml_results"]
