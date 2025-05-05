@@ -64,117 +64,6 @@ def summarize(file: UploadFile = File(...)):
     # return {"response": f"Processed  with key {output_dict}"}
 
 
-class Summarize:
-    def __init__(self):
-        # Load the Gemini API key from environment or use a default
-        self.GENAI_API_KEY = os.getenv("gem_api_key", "default_key")
-
-        # Initialize the Gemini LLM
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash-001", api_key=self.GENAI_API_KEY
-        )
-
-    def get_embedding_function(self):
-        embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001", google_api_key=self.GENAI_API_KEY
-        )
-        return embeddings
-
-    def summarize_file(self, file_path: str) -> dict:
-        try:
-            # Load PDF content
-            loader = PyPDFLoader(file_path)
-            pages = loader.load()
-
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1500,
-                chunk_overlap=200,
-                length_function=len,
-                separators=["\n\n", "\n", " "],
-            )
-            chunks = text_splitter.split_documents(pages)
-
-            embedding_function = self.get_embedding_function()
-            evaluator = load_evaluator(
-                evaluator="embedding_distance", embeddings=embedding_function
-            )
-
-            VECTORSTORE_PATH = "vectorstore_chroma"
-            if os.path.exists(VECTORSTORE_PATH):
-                shutil.rmtree(VECTORSTORE_PATH)
-
-            vectorstore = self.create_vectorstore(
-                chunks=chunks,
-                embedding_function=embedding_function,
-                vectorstore_path=VECTORSTORE_PATH,
-            )
-
-            retriever = vectorstore.as_retriever(search_type="similarity")
-            relevant_chunks = retriever.invoke("What is the title of the paper?")
-            # Prompt template
-            PROMPT_TEMPLATE = """
-            You are an assistant for question-answering tasks.
-            Use the following pieces of retrieved context to answer
-            the question. If you don't know the answer, say that you
-            don't know. DON'T MAKE UP ANYTHING.
-
-            {context}
-
-            ---
-
-            Answer the question based on the above context: {question}
-            """
-
-            # Concatenate context text
-            context_text = "\n\n---\n\n".join(
-                [doc.page_content for doc in relevant_chunks]
-            )
-
-            # Create prompt
-            prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-            prompt = prompt_template.format(
-                context=context_text, question="What is the title of the paper?"
-            )
-
-            resp = self.llm.invoke(prompt).content
-
-            # Return structured JSON response
-
-            # resp = self.llm.invoke("Tell me a joke about Sky and plane").content
-            return {
-                "summary": resp,
-            }
-        except Exception as e:
-            return {"error": str(e)}
-
-    def create_vectorstore(self, chunks, embedding_function, vectorstore_path):
-
-        # Create a list of unique ids for each document based on the content
-        ids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, doc.page_content)) for doc in chunks]
-
-        # Ensure that only unique docs with unique ids are kept
-        unique_ids = set()
-        unique_chunks = []
-
-        unique_chunks = []
-        for chunk, id in zip(chunks, ids):
-            if id not in unique_ids:
-                unique_ids.add(id)
-                unique_chunks.append(chunk)
-
-        # Create a new Chroma database from the documents
-        vectorstore = Chroma.from_documents(
-            documents=unique_chunks,
-            ids=list(unique_ids),
-            embedding=embedding_function,
-            persist_directory=vectorstore_path,
-        )
-
-        vectorstore.persist()
-
-        return vectorstore
-
-
 class AnswerWithSources(BaseModel):
     """An answer to the question, with sources and reasoning."""
 
@@ -518,7 +407,7 @@ class EnhancedPDFSummarizer:
         try:
             # Create a unique vectorstore path for this file
             file_hash = str(uuid.uuid5(uuid.NAMESPACE_DNS, file_path))
-            vectorstore_path = f"vectorstore_chroma_{file_hash}"
+            vectorstore_path = f"vectorstore/vectorstore_chroma_{file_hash}"
 
             # Remove existing vectorstore if it exists
             if os.path.exists(vectorstore_path):
