@@ -138,7 +138,15 @@ This document provides an overview of the functions implemented in the [`main.py
   - `GoogleGenerativeAIEmbeddings`: Embedding instance for vector operations.
 
 
-### **10. [`compute_similarity(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L460)**
+## Recommendation Service - Function Documentation
+
+This document provides an overview of the functions implemented in the [`main.py`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py) file of the Recommendation Service. Each function includes a brief description, along with its input and output parameters. Click on the function name to navigate directly to its implementation in the code.
+
+---
+
+## **Functions**
+
+### **1. [`compute_similarity(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L460)**
 - **Description**: 
   Utility function that implements BERT model using SentenceTransformer to calculate similarity between papers
   in the database based on keywords of the papers.
@@ -149,7 +157,7 @@ This document provides an overview of the functions implemented in the [`main.py
   - List of tuples with paper id and similarity percentage to the target paper
 
 
-### **11. [`get_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L499)**
+### **2. [`get_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L499)**
 - **Description**: 
   API implementation in ml service that takes keywords of papers and returns similarity score.
 - **Inputs**:
@@ -159,7 +167,7 @@ This document provides an overview of the functions implemented in the [`main.py
   - List of tuples with paper id and similarity percentage to the target paper
 
 
-### **11. [`get_similar_papers(paper_id: str)`](https://github.com/thesaugat/summarization/blob/dev/backend/app/routes.py#L87)**
+### **3. [`get_similar_papers(paper_id: str)`](https://github.com/thesaugat/summarization/blob/dev/backend/app/routes.py#L87)**
 - **Description**: 
   API route that takes a paper id, fetches it's keywords from database along with keywords of all other papers,
   calls *get_similarities* function with keywords and returns similarity percentage to papers.
