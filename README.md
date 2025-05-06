@@ -6,16 +6,17 @@ This project is a full-stack application with a React frontend, FastAPI backend,
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
-2. [Running the Application](#running-the-application)
+2. [Summarization Service - Function Documentation](#summarize)
+3. [Running the Application](#running-the-application)
    - [Running All Containers](#running-all-containers)
    - [Running Individual Containers](#running-individual-containers)
-3. [Container Overview](#container-overview)
+4. [Container Overview](#container-overview)
    - [Frontend](#frontend)
    - [Backend](#backend)
    - [ML Service](#ml-service)
    - [MongoDB](#mongodb)
-4. [Endpoints](#endpoints)
-5. [Troubleshooting](#troubleshooting)
+5. [Endpoints](#endpoints)
+6. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -30,54 +31,8 @@ Before running the application, ensure you have the following installed:
 
 ---
 
-## Running the Application
 
-### Running All Containers
-
-To run the entire application (frontend, backend, ML service, and MongoDB), use Docker Compose:
-
-1. Clone the repository (if not already done):
-   ```bash
-   git clone <repository-url>
-   cd <project-directory>
-2. Navigate to frontend directory and install required packages
-    ```bash
-    cd frontend && npm install
-3. cd back to project root and build and start all containers:
-    ```bash
-    cd ..
-    docker-compose up --build
-4. Access the application:
-
-# Endpoints Overview
-
-| Service       | URL                          | Description       |
-|---------------|------------------------------|-------------------|
-| Frontend      | http://localhost:3000/       | React App         |
-| Backend (API) | http://localhost:8000/       | FastAPI           |
-| ML Service    | http://localhost:5001/predict| ML Endpoint       |
-
-
-### Running Individual Containers
-
-If you want to run individual containers for development or debugging, follow these steps:
-
-#### Frontend
-
-1. Navigate to the frontend directory:
-    ```bash
-    cd frontend
-2. Navigate to frontend directory and install required packages (only if you have not installed before)
-    ```bash
-        npm install
-3.  Build and run the frontend container:
-    ```bash
-    docker build -t frontend .
-    docker run -p 3000:80 frontend
-
-4. Access the frontend at http://localhost:3000.
-
-# Summarization Service - Function Documentation
+## Summarization Service - Function Documentation
 
 This document provides an overview of the functions implemented in the [`main.py`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py) file of the Summarization Service. Each function includes a brief description, along with its input and output parameters. Click on the function name to navigate directly to its implementation in the code.
 
@@ -184,11 +139,55 @@ This document provides an overview of the functions implemented in the [`main.py
 
 ---
 
-## **Example Usage**
 
-1. **Run the API**:
+
+## Running the Application
+
+### Running All Containers
+
+To run the entire application (frontend, backend, ML service, and MongoDB), use Docker Compose:
+
+1. Clone the repository (if not already done):
    ```bash
-   uvicorn app.main:app --reload
+   git clone <repository-url>
+   cd <project-directory>
+2. Navigate to frontend directory and install required packages
+    ```bash
+    cd frontend && npm install
+3. cd back to project root and build and start all containers:
+    ```bash
+    cd ..
+    docker-compose up --build
+4. Access the application:
+
+# Endpoints Overview
+
+| Service       | URL                          | Description       |
+|---------------|------------------------------|-------------------|
+| Frontend      | http://localhost:3000/       | React App         |
+| Backend (API) | http://localhost:8000/       | FastAPI           |
+| ML Service    | http://localhost:5001/| ML Endpoint       |
+
+
+### Running Individual Containers
+
+If you want to run individual containers for development or debugging, follow these steps:
+
+#### Frontend
+
+1. Navigate to the frontend directory:
+    ```bash
+    cd frontend
+2. Navigate to frontend directory and install required packages (only if you have not installed before)
+    ```bash
+        npm install
+3.  Build and run the frontend container:
+    ```bash
+    docker build -t frontend .
+    docker run -p 3000:80 frontend
+
+4. Access the frontend at http://localhost:3000.
+
 
 ## Installation
 
