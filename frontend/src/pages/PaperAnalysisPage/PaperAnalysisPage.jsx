@@ -171,10 +171,9 @@ function PaperAnalysisPage({ fileId }) {
                   {ml_result.summary?.keywords?.reasoning && (
                     <button
                       onClick={() => toggleReasoningPopup('keywords')}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 hover:bg-green-200 transition-colors"
                     >
                       <Info size={14} className="mr-1" />
-                      Reasoning
                     </button>
                   )}
                 </div>
