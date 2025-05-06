@@ -171,7 +171,7 @@ async def get_similar_papers(paper_id: str):
         # Call ML service to compute similarities
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                "http://ml-service:5001/compute-similarities",
+                "http://ml-service:5001/get-similarities",
                 json={
                     "target_keywords": target_keywords,
                     "papers_keywords": papers_keywords

@@ -486,7 +486,7 @@ class RecommendationService:
         # Create and sort results
         similarity_scores = list(zip(paper_ids, similarities))
         similarity_scores.sort(key=lambda x: x[1], reverse=True)
-        similarity_scores = [(pid, round(score * 100, 3)) for pid, score in similarity_scores]
+        similarity_scores = [(pid, round(float(score * 100), 3)) for pid, score in similarity_scores]
         # Limit to top 10 results
         similarity_scores = similarity_scores[:10]
         return similarity_scores
@@ -507,7 +507,7 @@ async def get_similarities(target_keywords: List[str], papers_keywords: Dict[str
         )
         return {
             "similarities": [
-                {"paper_id": pid, "similarity": float(score, 3)} 
+                {"paper_id": pid, "similarity": score} 
                 for pid, score in similarity_scores
             ]
         }
