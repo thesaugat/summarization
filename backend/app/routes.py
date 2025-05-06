@@ -6,8 +6,8 @@ import aiohttp
 from fastapi import HTTPException
 import shutil
 import uuid
-from .models import FileMeta, MLResponse
-from .database import file_collection, ml_result_collection
+from .models import FileMeta, MLResponse, PaperSimilarity
+from .database import file_collection, ml_result_collection, similarity_collection
 
 router = APIRouter()
 
@@ -124,5 +124,79 @@ async def list_files_with_summaries():
             file_doc["ml_result"] = summary
             results.append(file_doc)
         return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+@router.get("/similar-papers/{paper_id}")
+async def get_similar_papers(paper_id: str):
+    try:
+        # Check cache first
+        cached_similarities = await similarity_collection.find({
+            "source_paper_id": paper_id
+        }).to_list(length=None)
+
+        if cached_similarities:
+            # Return cached results if found
+            return {
+                "papers": [
+                    {
+                        "paper_id": sim["target_paper_id"],
+                        "similarity": sim["similarity_score"]
+                    }
+                    for sim in cached_similarities
+                ]
+            }
+
+        # Get target paper's keywords
+        target_paper = await ml_result_collection.find_one({"file_id": paper_id})
+        if not target_paper:
+            raise HTTPException(status_code=404, detail="Paper not found")
+
+        # Get target paper's keywords
+        target_keywords = target_paper["summary"]["keywords"]["answer"].split(", ")
+
+        # Get all other papers' keywords
+        all_papers = await ml_result_collection.find(
+            {"file_id": {"$ne": paper_id}}
+        ).to_list(length=None)
+
+        papers_keywords = {
+            paper["file_id"]: paper["summary"]["keywords"]["answer"].split(", ")
+            for paper in all_papers
+        }
+
+        # Call ML service to compute similarities
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "http://ml-service:5001/compute-similarities",
+                json={
+                    "target_keywords": target_keywords,
+                    "papers_keywords": papers_keywords
+                }
+            ) as response:
+                if response.status != 200:
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Error computing similarities"
+                    )
+                similarity_results = await response.json()
+
+        # Save results to cache
+        similarity_docs = [
+            PaperSimilarity(
+                source_paper_id=paper_id,
+                target_paper_id=result["paper_id"],
+                similarity_score=result["similarity"]
+            ).dict()
+            for result in similarity_results["similarities"]
+        ]
+        if similarity_docs:
+            await similarity_collection.insert_many(similarity_docs)
+
+        return similarity_results
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

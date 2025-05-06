@@ -37,3 +37,10 @@ class MLResponse(BaseModel):
 class FileMeta(BaseModel):
     file_name: str
     upload_date: datetime
+
+
+class PaperSimilarity(BaseModel):
+    source_paper_id: str
+    target_paper_id: str
+    similarity_score: float
+    computed_at: datetime = Field(default_factory=datetime.utcnow)

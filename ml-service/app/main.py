@@ -8,7 +8,9 @@ from langchain.vectorstores import Chroma
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from typing import Dict, List, Tuple
 
 from langchain.evaluation import load_evaluator
 
@@ -30,7 +32,6 @@ from typing import Dict, List, Any, Optional
 # from ml_back import predict
 
 app = FastAPI()
-
 
 class Input(BaseModel):
     message: str
@@ -450,3 +451,66 @@ class EnhancedPDFSummarizer:
             import traceback
 
             return {"error": str(e), "traceback": traceback.format_exc()}
+
+
+class RecommendationService:
+    def __init__(self):
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    def compute_similarity(self, target_keywords: List[str], papers_keywords: Dict[str, List[str]]) -> List[Tuple[str, float]]:
+        """
+        Compute similarity between target paper and other papers using BERT embeddings
+        
+        Args:
+            target_keywords: Keywords of the target paper
+            papers_keywords: Dictionary of paper_id -> keywords for other papers
+            
+        Returns:
+            List of tuples (paper_id, similarity_score) sorted by similarity
+        """
+        # Convert keywords to text format
+        target_text = " ".join(target_keywords)
+        paper_texts = [" ".join(kw) for kw in papers_keywords.values()]
+        paper_ids = list(papers_keywords.keys())
+
+        # Generate embeddings
+        target_embedding = self.model.encode([target_text], convert_to_tensor=True)
+        paper_embeddings = self.model.encode(paper_texts, convert_to_tensor=True)
+
+        # Compute similarities
+        similarities = cosine_similarity(
+            target_embedding.cpu().detach().numpy(),
+            paper_embeddings.cpu().detach().numpy()
+        )[0]
+
+        # Create and sort results
+        similarity_scores = list(zip(paper_ids, similarities))
+        similarity_scores.sort(key=lambda x: x[1], reverse=True)
+        similarity_scores = [(pid, round(score * 100, 3)) for pid, score in similarity_scores]
+        # Limit to top 10 results
+        similarity_scores = similarity_scores[:10]
+        return similarity_scores
+    
+
+# Initialize recommendation service
+recommendation_service = RecommendationService()
+
+
+@app.post("/compute-similarities")
+async def compute_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]]):
+    """
+    Compute similarity scores between target paper and other papers
+    """
+    try:
+        similarity_scores = recommendation_service.compute_similarity(
+            target_keywords,
+            papers_keywords
+        )
+        return {
+            "similarities": [
+                {"paper_id": pid, "similarity": float(score, 3)} 
+                for pid, score in similarity_scores
+            ]
+        }
+    except Exception as e:
+        return {"error": str(e)}

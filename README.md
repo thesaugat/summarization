@@ -164,7 +164,7 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
 
 | Service       | URL                          | Description       |
 |---------------|------------------------------|-------------------|
-| Frontend      | http://localhost:3000/       | React App         |
+| Frontend      | http://localhost:5173/       | React App         |
 | Backend (API) | http://localhost:8000/       | FastAPI           |
 | ML Service    | http://localhost:5001/| ML Endpoint       |
 
@@ -184,20 +184,6 @@ If you want to run individual containers for development or debugging, follow th
 3.  Build and run the frontend container:
     ```bash
     docker build -t frontend .
-    docker run -p 3000:80 frontend
+    docker run -p 5173:80 frontend
 
-4. Access the frontend at http://localhost:3000.
-
-
-## Installation
-
-### Prerequisites
-- Python 3.8+
-- Install dependencies listed in `requirements.txt`.
-
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/thesaugat/summarization.git
-   cd summarization
-
+4. Access the frontend at http://localhost:5173.

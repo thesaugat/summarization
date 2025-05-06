@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import router
+from .database import setup_indexes
 import os
 
 app = FastAPI()
@@ -24,7 +25,11 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
+    #  Create upload directory if it doesn't exist
     os.makedirs("uploaded", exist_ok=True)
+
+    # Setup MongoDB indexes
+    await setup_indexes()
 
 
 app.include_router(router)
