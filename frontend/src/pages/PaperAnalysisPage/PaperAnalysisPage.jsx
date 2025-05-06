@@ -1,7 +1,6 @@
 import { Heart, Download, Tag, ExternalLink, ArrowRight, X, Info } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import ProgressCircle from "../../components/ProgressCircle";
 import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
 
@@ -10,6 +9,8 @@ function PaperAnalysisPage({ fileId }) {
   const [paperData, setPaperData] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const [relatedPapers, setRelatedPapers] = useState([]);
+  const [loadingRelated, setLoadingRelated] = useState(true);
 
   // State for individual reasoning popups
   const [activePopup, setActivePopup] = useState(null);
@@ -36,6 +37,29 @@ function PaperAnalysisPage({ fileId }) {
     fetchData();
   }, [location.state?.data]);
 
+  useEffect(() => {
+    const fetchRelatedPapers = async () => {
+      if (!paperData?.ml_result?.file_id) return;
+      
+      setLoadingRelated(true);
+      try {
+        const response = await fetch(`http://localhost:8000/similar-papers/${paperData.ml_result.file_id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setRelatedPapers(data || []);
+      } catch (error) {
+        console.error("Error fetching related papers:", error);
+        setRelatedPapers([]);
+      } finally {
+        setLoadingRelated(false);
+      }
+    };
+
+    fetchRelatedPapers();
+  }, [paperData]);
+
   // Parse keywords from the comma-separated string
   const getKeywords = () => {
     if (!paperData?.ml_result?.summary?.keywords?.answer) return [];
@@ -51,24 +75,6 @@ function PaperAnalysisPage({ fileId }) {
       .filter(point => point.startsWith('*   '))
       .map(point => point.replace('*   ', ''));
   };
-
-  const relatedPapers = [
-    {
-      title: "Efficient Vision Transformers via Patch Merging",
-      authors: "Zhang, Li et al.",
-      relevance: 83
-    },
-    {
-      title: "Dynamic Routing Between Capsules",
-      authors: "Hinton, Sabour et al.",
-      relevance: 67
-    },
-    {
-      title: "Attention is All You Need in Computer Vision",
-      authors: "Patel, Johnson et al.",
-      relevance: 58
-    }
-  ];
 
   // Function to toggle specific section's reasoning popup
   const toggleReasoningPopup = (section) => {
@@ -228,28 +234,40 @@ function PaperAnalysisPage({ fileId }) {
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
                   <div className="space-y-3">
-                    {relatedPapers.map((paper, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium text-gray-900">{paper.title}</h3>
-                            <p className="text-sm text-gray-600 mt-1">{paper.authors}</p>
-                          </div>
-                          <div className="flex items-center ml-4">
-                            <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                              <div
-                                className="bg-green-600 h-2 rounded-full"
-                                style={{ width: `${paper.relevance}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm text-gray-600 whitespace-nowrap">{paper.relevance}%</span>
-                          </div>
-                        </div>
+                    {loadingRelated ? (
+                      <div className="flex justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
                       </div>
-                    ))}
-                    <button className="text-green-600 flex items-center mt-2 text-sm font-medium hover:text-green-800 transition-colors">
-                      View more related papers <ArrowRight size={16} className="ml-1" />
-                    </button>
+                    ) : relatedPapers.length > 0 ? (
+                      <>
+                        {relatedPapers.map((paper, index) => (
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="font-medium text-gray-900">{paper.title}</h3>
+                                <p className="text-sm text-gray-600 mt-1">{paper.authors}</p>
+                              </div>
+                              <div className="flex items-center ml-4">
+                                <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                  <div
+                                    className="bg-green-600 h-2 rounded-full"
+                                    style={{ width: `${paper.relevance}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm text-gray-600 whitespace-nowrap">{paper.relevance}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <button className="text-green-600 flex items-center mt-2 text-sm font-medium hover:text-green-800 transition-colors">
+                          View more related papers <ArrowRight size={16} className="ml-1" />
+                        </button>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No related papers found
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

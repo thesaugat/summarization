@@ -133,22 +133,25 @@ async def list_files_with_summaries():
 @router.get("/similar-papers/{paper_id}")
 async def get_similar_papers(paper_id: str):
     try:
-        # Check cache first
-        cached_similarities = await similarity_collection.find({
+        # Check saved results first
+        saved_similarities = await similarity_collection.find({
             "source_paper_id": paper_id
         }).to_list(length=None)
 
-        if cached_similarities:
-            # Return cached results if found
-            return {
-                "papers": [
-                    {
+        if saved_similarities:
+            # Fetch additional paper details for saved results
+            similar_papers = []
+            for sim in saved_similarities:
+                paper_details = await ml_result_collection.find_one(
+                    {"file_id": sim["target_paper_id"]}
+                )
+                if paper_details:
+                    similar_papers.append({
                         "paper_id": sim["target_paper_id"],
-                        "similarity": sim["similarity_score"]
-                    }
-                    for sim in cached_similarities
-                ]
-            }
+                        "title": paper_details["title"]["answer"],
+                        "relevance": round(sim["similarity_score"])
+                    })
+            return similar_papers
 
         # Get target paper's keywords
         target_paper = await ml_result_collection.find_one({"file_id": paper_id})
@@ -171,7 +174,7 @@ async def get_similar_papers(paper_id: str):
         # Call ML service to compute similarities
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                "http://ml-service:5001/compute-similarities",
+                "http://ml-service:5001/get-similarities",
                 json={
                     "target_keywords": target_keywords,
                     "papers_keywords": papers_keywords
@@ -184,7 +187,21 @@ async def get_similar_papers(paper_id: str):
                     )
                 similarity_results = await response.json()
 
-        # Save results to cache
+        # Process similarity results
+        similar_papers = []
+        for result in similarity_results["similarities"]:
+            # Fetch paper details from database
+            paper_details = await ml_result_collection.find_one(
+                {"file_id": result["paper_id"]}
+            )
+            if paper_details:
+                similar_papers.append({
+                    "paper_id": result["paper_id"],
+                    "title": paper_details["title"]["answer"],
+                    "relevance": round(result["similarity"])
+                })
+
+        # Save results to database
         similarity_docs = [
             PaperSimilarity(
                 source_paper_id=paper_id,
@@ -196,7 +213,7 @@ async def get_similar_papers(paper_id: str):
         if similarity_docs:
             await similarity_collection.insert_many(similarity_docs)
 
-        return similarity_results
+        return similar_papers
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
