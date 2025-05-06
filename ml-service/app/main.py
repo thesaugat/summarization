@@ -490,18 +490,17 @@ class RecommendationService:
         # Limit to top 10 results
         similarity_scores = similarity_scores[:10]
         return similarity_scores
-    
-
-# Initialize recommendation service
-recommendation_service = RecommendationService()
 
 
-@app.post("/compute-similarities")
-async def compute_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]]):
+@app.post("/get-similarities")
+async def get_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]]):
     """
     Compute similarity scores between target paper and other papers
     """
     try:
+        # Initialize recommendation service
+        recommendation_service = RecommendationService()
+
         similarity_scores = recommendation_service.compute_similarity(
             target_keywords,
             papers_keywords

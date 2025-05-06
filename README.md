@@ -1,4 +1,4 @@
-# Project Name
+# iPpaer: Paper Summarization and Analysis
 
 This project is a full-stack application with a React frontend, FastAPI backend, a machine learning service, and a MongoDB database. The application is containerized using Docker and orchestrated with Docker Compose.
 
@@ -137,6 +137,37 @@ This document provides an overview of the functions implemented in the [`main.py
 - **Outputs**:
   - `GoogleGenerativeAIEmbeddings`: Embedding instance for vector operations.
 
+
+### **10. [`compute_similarity(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L460)**
+- **Description**: 
+  Utility function that implements BERT model using SentenceTransformer to calculate similarity between papers
+  in the database based on keywords of the papers.
+- **Inputs**:
+  - `target_keywords` Keywords of the target paper
+  - `papers_keywords` Dictionary of (paper_id -> keywords) for other papers
+- **Outputs**:
+  - List of tuples with paper id and similarity percentage to the target paper
+
+
+### **11. [`get_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L499)**
+- **Description**: 
+  API implementation in ml service that takes keywords of papers and returns similarity score.
+- **Inputs**:
+  - `target_keywords` Keywords of the target paper
+  - `papers_keywords` Dictionary of (paper_id -> keywords) for other papers
+- **Outputs**:
+  - List of tuples with paper id and similarity percentage to the target paper
+
+
+### **11. [`get_similar_papers(paper_id: str)`](https://github.com/thesaugat/summarization/blob/dev/backend/app/routes.py#L87)**
+- **Description**: 
+  API route that takes a paper id, fetches it's keywords from database along with keywords of all other papers,
+  calls *get_similarities* function with keywords and returns similarity percentage to papers.
+- **Inputs**:
+  - `paper_id` (str) id of the target paper
+- **Outputs**:
+  - JSON containing paper id, name and similarity percentage.
+
 ---
 
 
@@ -160,15 +191,6 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
     docker-compose up --build
 4. Access the application:
 
-# Endpoints Overview
-
-| Service       | URL                          | Description       |
-|---------------|------------------------------|-------------------|
-| Frontend      | http://localhost:5173/       | React App         |
-| Backend (API) | http://localhost:8000/       | FastAPI           |
-| ML Service    | http://localhost:5001/| ML Endpoint       |
-
-
 ### Running Individual Containers
 
 If you want to run individual containers for development or debugging, follow these steps:
@@ -187,3 +209,11 @@ If you want to run individual containers for development or debugging, follow th
     docker run -p 5173:80 frontend
 
 4. Access the frontend at http://localhost:5173.
+
+### Endpoints Overview
+
+| Service       | URL                          | Description       |
+|---------------|------------------------------|-------------------|
+| Frontend      | http://localhost:5173/       | React App         |
+| Backend (API) | http://localhost:8000/       | FastAPI           |
+| ML Service    | http://localhost:5001/| ML Endpoint       |
