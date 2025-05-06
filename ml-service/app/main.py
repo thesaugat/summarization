@@ -33,6 +33,7 @@ from typing import Dict, List, Any, Optional
 
 app = FastAPI()
 
+
 class Input(BaseModel):
     message: str
 
@@ -455,16 +456,18 @@ class EnhancedPDFSummarizer:
 
 class RecommendationService:
     def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    def compute_similarity(self, target_keywords: List[str], papers_keywords: Dict[str, List[str]]) -> List[Tuple[str, float]]:
+    def compute_similarity(
+        self, target_keywords: List[str], papers_keywords: Dict[str, List[str]]
+    ) -> List[Tuple[str, float]]:
         """
         Compute similarity between target paper and other papers using BERT embeddings
-        
+
         Args:
             target_keywords: Keywords of the target paper
             papers_keywords: Dictionary of paper_id -> keywords for other papers
-            
+
         Returns:
             List of tuples (paper_id, similarity_score) sorted by similarity
         """
@@ -480,20 +483,24 @@ class RecommendationService:
         # Compute similarities
         similarities = cosine_similarity(
             target_embedding.cpu().detach().numpy(),
-            paper_embeddings.cpu().detach().numpy()
+            paper_embeddings.cpu().detach().numpy(),
         )[0]
 
         # Create and sort results
         similarity_scores = list(zip(paper_ids, similarities))
         similarity_scores.sort(key=lambda x: x[1], reverse=True)
-        similarity_scores = [(pid, round(float(score * 100), 3)) for pid, score in similarity_scores]
+        similarity_scores = [
+            (pid, round(float(score * 100), 3)) for pid, score in similarity_scores
+        ]
         # Limit to top 10 results
         similarity_scores = similarity_scores[:10]
         return similarity_scores
 
 
 @app.post("/get-similarities")
-async def get_similarities(target_keywords: List[str], papers_keywords: Dict[str, List[str]]):
+async def get_similarities(
+    target_keywords: List[str], papers_keywords: Dict[str, List[str]]
+):
     """
     Compute similarity scores between target paper and other papers
     """
@@ -502,12 +509,11 @@ async def get_similarities(target_keywords: List[str], papers_keywords: Dict[str
         recommendation_service = RecommendationService()
 
         similarity_scores = recommendation_service.compute_similarity(
-            target_keywords,
-            papers_keywords
+            target_keywords, papers_keywords
         )
         return {
             "similarities": [
-                {"paper_id": pid, "similarity": score} 
+                {"paper_id": pid, "similarity": score}
                 for pid, score in similarity_scores
             ]
         }

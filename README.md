@@ -34,7 +34,7 @@ Before running the application, ensure you have the following installed:
 
 ## Summarization Service - Function Documentation
 
-This document provides an overview of the functions implemented in the [`main.py`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py) file of the Summarization Service. Each function includes a brief description, along with its input and output parameters. Click on the function name to navigate directly to its implementation in the code.
+This document provides an overview of the functions implemented in the [`main.py`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py) file of the Summarization Task on the ml-service microservice for the ML part. Each function includes a brief description, along with its input and output parameters. Click on the function name to navigate directly to its implementation in the code.
 
 ---
 
@@ -65,7 +65,9 @@ This document provides an overview of the functions implemented in the [`main.py
 
 ### **3. [`load_and_split_pdf(file_path: str)`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L113)**
 - **Description**: 
-  Loads a PDF file and splits it into manageable chunks for processing.
+  Loads a PDF file and splits it into manageable chunks for processing. Splits text into 1500-token segments with 200-token overlap.
+  Context Preservation: Prioritizes natural breaks (paragraphs, sentences)
+
 - **Inputs**:
   - `file_path` (string): Path to the PDF file.
 - **Outputs**:
@@ -87,6 +89,7 @@ This document provides an overview of the functions implemented in the [`main.py
 ### **5. [`extract_title(chunks: List[Document])`](https://github.com/thesaugat/summarization/blob/dev/ml-service/app/main.py#L182)**
 - **Description**: 
   Extracts the title from the document chunks using AI prompting.
+  It takes first three chunks from the list of chunks as title is always on the top part of the document.
 - **Inputs**:
   - `chunks` (List[Document]): List of document chunks.
 - **Outputs**:
@@ -190,14 +193,10 @@ To run the entire application (frontend, backend, ML service, and MongoDB), use 
    ```bash
    git clone <repository-url>
    cd <project-directory>
-2. Navigate to frontend directory and install required packages
+2. cd back to project root and build and start all containers:
     ```bash
-    cd frontend && npm install
-3. cd back to project root and build and start all containers:
-    ```bash
-    cd ..
     docker-compose up --build
-4. Access the application:
+3. Access the application:
 
 ### Running Individual Containers
 
@@ -208,15 +207,12 @@ If you want to run individual containers for development or debugging, follow th
 1. Navigate to the frontend directory:
     ```bash
     cd frontend
-2. Navigate to frontend directory and install required packages (only if you have not installed before)
-    ```bash
-        npm install
-3.  Build and run the frontend container:
+2.  Build and run the frontend container:
     ```bash
     docker build -t frontend .
     docker run -p 5173:80 frontend
 
-4. Access the frontend at http://localhost:5173.
+3. Access the frontend at http://localhost:5173.
 
 ### Endpoints Overview
 
