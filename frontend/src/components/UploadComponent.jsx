@@ -1,5 +1,7 @@
 import { Upload, ArrowRight, FolderOpen, CheckCircle, XCircle, FileText, AlertCircle, RefreshCw } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function UploadComponent() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -12,6 +14,7 @@ export default function UploadComponent() {
   const [progress, setProgress] = useState(0);
   const [fileError, setFileError] = useState(null);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let interval;
@@ -145,9 +148,10 @@ export default function UploadComponent() {
       console.log("Server response", data);
 
       // Check if ml_result is not null
-      if (data.ml_result !== null && data.ml_result !== "") {
+      if (data.summary !== null && data.summary !== "") {
         // Redirect to paper-analysis page with the data
-        window.location.href = `/paper-analysis?data=${encodeURIComponent(JSON.stringify(data))}`;
+        // window.location.href = `/paper-analysis?data=${encodeURIComponent(JSON.stringify(data))}`;
+        navigate('/paper-analysis', { state: { data } });
       } else {
         // Show success message if no redirect
         triggerOverlay("Your paper has been successfully processed! The summary is ready.", true);
@@ -308,7 +312,7 @@ export default function UploadComponent() {
               onClick={handleUpload}
               disabled={!selectedFile || isLoading}
             >
-              Generate Summary <ArrowRight size={16} />
+              Analyse Paper <ArrowRight size={16} />
             </button>
           )}
         </div>

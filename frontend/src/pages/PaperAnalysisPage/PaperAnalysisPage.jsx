@@ -2,11 +2,55 @@ import { Heart, Download, Tag, ExternalLink, ArrowRight, X, Info } from "lucide-
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ProgressCircle from "../../components/ProgressCircle";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from 'react-router-dom';
 
-function PaperAnalysisPage() {
+function PaperAnalysisPage({ fileId }) {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [showReasoningPopup, setShowReasoningPopup] = useState(false);
+  const [paperData, setPaperData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  // State for individual reasoning popups
+  const [activePopup, setActivePopup] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Check if data was passed via navigation state
+        if (location.state?.data) {
+          setPaperData(location.state.data); // Use the passed data
+        } else {
+          // Fallback to API call if no data was passed
+          // const response = await fetch(`/api/papers/${fileId}`);
+          // const data = await response.json();
+          setPaperData(mockResponse); // Mock data (replace with actual API call)
+        }
+      } catch (error) {
+        console.error("Error fetching paper data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [location.state?.data]);
+
+  // Parse keywords from the comma-separated string
+  const getKeywords = () => {
+    if (!paperData?.ml_result?.summary?.keywords?.answer) return [];
+    return paperData.ml_result.summary.keywords.answer.split(', ');
+  };
+
+  // Parse key points from the string (converting markdown list to array)
+  const getKeyPoints = () => {
+    if (!paperData?.ml_result?.summary?.key_points) return [];
+    return paperData.ml_result.summary.key_points
+      .replace("Here are the key points extracted from the document excerpts:\n\n", "")
+      .split('\n')
+      .filter(point => point.startsWith('*   '))
+      .map(point => point.replace('*   ', ''));
+  };
 
   const relatedPapers = [
     {
@@ -26,13 +70,44 @@ function PaperAnalysisPage() {
     }
   ];
 
+  // Function to toggle specific section's reasoning popup
+  const toggleReasoningPopup = (section) => {
+    if (activePopup === section) {
+      setActivePopup(null);
+    } else {
+      setActivePopup(section);
+    }
+  };
+
+  // Show loading state if data is still loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-green-50 flex items-center justify-center">
+        <div className="text-green-600 font-medium">Loading paper analysis...</div>
+      </div>
+    );
+  }
+
+  // If data is loaded but no paper data found
+  if (!paperData || !paperData.ml_result) {
+    return (
+      <div className="min-h-screen bg-green-50 flex items-center justify-center">
+        <div className="text-red-600 font-medium">Paper data not found</div>
+      </div>
+    );
+  }
+
+  const { ml_result } = paperData;
+  const keywords = getKeywords();
+  const keyPoints = getKeyPoints();
+
   return (
-    <div className="min-h-screen bg-green-50">
+    <div className="min-h-screen bg-white-50 relative">
       <Header />
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Paper Header */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-4"></div>
           <div className="p-6">
             <div className="flex flex-col lg:flex-row gap-8">
@@ -40,7 +115,15 @@ function PaperAnalysisPage() {
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    Advanced Neural Architecture for Computer Vision
+                    {ml_result.title?.answer || "Untitled Paper"}
+                    {ml_result.title?.reasoning && (
+                      <button
+                        onClick={() => toggleReasoningPopup('title')}
+                        className="ml-2 p-1 inline-flex bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors align-middle"
+                      >
+                        <Info size={16} />
+                      </button>
+                    )}
                   </h1>
                   <div className="flex gap-2">
                     <button
@@ -56,43 +139,43 @@ function PaperAnalysisPage() {
                 </div>
 
                 <div className="flex gap-3 mb-6 text-sm">
-                  <span className="text-gray-500">Published: Mar 2025</span>
+                  <span className="text-gray-500">Processed On: {new Date(ml_result.processed_at).toLocaleDateString()}</span>
                   <span className="text-gray-500">•</span>
-                  <span className="text-gray-500">Citations: 124</span>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-500">Impact Factor: 8.3</span>
-                </div>
-
-                <div className="mb-6">
-                  <img
-                    src="/api/placeholder/800/300"
-                    alt="Paper visualization"
-                    className="rounded-lg shadow-sm w-full object-cover mb-4"
-                  />
+                  <span className="text-gray-500">ID: {ml_result.file_id}</span>
                 </div>
 
                 <div className="relative">
                   <h2 className="text-xl font-semibold mb-3 flex items-center">
                     AI-Generated Summarization
-                    <button
-                      onClick={() => setShowReasoningPopup(true)}
-                      className="ml-2 p-1 bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors"
-                    >
-                      <Info size={16} />
-                    </button>
+                    {ml_result.summary?.detailed_summary?.reasoning && (
+                      <button
+                        onClick={() => toggleReasoningPopup('summary')}
+                        className="ml-2 p-1 bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors"
+                      >
+                        <Info size={16} />
+                      </button>
+                    )}
                   </h2>
                   <p className="text-gray-700 mb-6 leading-relaxed">
-                    This research introduces a breakthrough in computer vision by combining attention mechanisms with sparse convolutions. The authors demonstrate a 35% reduction in computational requirements while achieving superior performance across benchmarks. Key applications include medical imaging analysis, autonomous driving systems, and facial recognition technology. The most significant innovation is the adaptive attention module that dynamically allocates computational resources based on image complexity.
+                    {ml_result.summary?.detailed_summary?.answer || "No summary available."}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {['Neural Networks', 'Computer Vision', 'Attention Mechanisms', 'Sparse Convolution'].map(tag => (
+                  {keywords.map(tag => (
                     <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700">
                       <Tag size={14} className="mr-1" />
                       {tag}
                     </span>
                   ))}
+                  {ml_result.summary?.keywords?.reasoning && (
+                    <button
+                      onClick={() => toggleReasoningPopup('keywords')}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 hover:bg-green-200 transition-colors"
+                    >
+                      <Info size={14} className="mr-1" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -108,11 +191,37 @@ function PaperAnalysisPage() {
               {/* Right Column - Analysis */}
               <div className="flex-1 lg:border-l lg:pl-8 space-y-8">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">Impact Metrics</h2>
-                  <div className="grid grid-cols-3 gap-6">
-                    <ProgressCircle percentage={87} label="Innovation" />
-                    <ProgressCircle percentage={92} label="Methodology" />
-                    <ProgressCircle percentage={78} label="Practical Impact" />
+                  <h2 className="text-xl font-semibold mb-4">Key Points</h2>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="prose max-w-none">
+                      <p className="text-gray-700">Here are the key points extracted from the document excerpts:</p>
+                      <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                        {keyPoints.length > 0 ? (
+                          keyPoints.map((point, index) => (
+                            <li key={index}>{point}</li>
+                          ))
+                        ) : (
+                          <li>No key points available</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    Abstract
+                    {ml_result.summary?.abstract?.reasoning && (
+                      <button
+                        onClick={() => toggleReasoningPopup('abstract')}
+                        className="ml-2 p-1 bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors"
+                      >
+                        <Info size={16} />
+                      </button>
+                    )}
+                  </h2>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <p className="text-gray-700">{ml_result.summary?.abstract?.answer || "No abstract available."}</p>
                   </div>
                 </div>
 
@@ -151,65 +260,144 @@ function PaperAnalysisPage() {
 
       <Footer />
 
-      {/* Reasoning Popup */}
-      {showReasoningPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Summarization Reasoning</h2>
-                <button
-                  onClick={() => setShowReasoningPopup(false)}
-                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="prose max-w-none">
-                <h3 className="text-lg font-semibold text-green-700">Key Information Extraction</h3>
-                <p>The summarization identified these key elements from the paper:</p>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>The core technological innovation: combination of attention mechanisms with sparse convolutions</li>
-                  <li>Quantifiable performance improvement: 35% reduction in computational requirements</li>
-                  <li>Benchmark assessment: achieved superior performance across standard benchmarks</li>
-                  <li>Application domains: medical imaging, autonomous driving, facial recognition</li>
-                  <li>Standout feature: adaptive attention module for dynamic resource allocation</li>
-                </ul>
+      {/* Slide-in Reasoning Panels */}
+      {activePopup && (
+        <div
+          className="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-lg z-40 transition-transform duration-300 ease-in-out"
+          style={{ transform: activePopup ? 'translateX(0)' : 'translateX(100%)' }}
+        >
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-green-50">
+              <h2 className="text-xl font-bold text-green-800">
+                {activePopup === 'title' && 'Title Analysis'}
+                {activePopup === 'summary' && 'Summary Analysis'}
+                {activePopup === 'abstract' && 'Abstract Analysis'}
+                {activePopup === 'keywords' && 'Keywords Analysis'}
+              </h2>
+              <button
+                onClick={() => setActivePopup(null)}
+                className="p-2 rounded-full hover:bg-green-100 text-green-700 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-                <h3 className="text-lg font-semibold text-green-700 mt-6">Summarization Methodology</h3>
-                <p>The AI system followed these steps to generate the summary:</p>
-                <ol className="list-decimal pl-5 space-y-2">
-                  <li>Identified the primary research contribution and core technological approach</li>
-                  <li>Extracted quantifiable metrics and performance claims</li>
-                  <li>Located practical applications mentioned throughout the paper</li>
-                  <li>Determined the most novel or significant innovation described</li>
-                  <li>Synthesized these elements into a concise summary that maintains technical accuracy while being accessible</li>
-                </ol>
+            <div className="flex-1 overflow-y-auto p-5">
+              {activePopup === 'title' && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Result</h3>
+                    <p className="text-gray-700">{ml_result.title?.answer}</p>
+                  </div>
 
-                <h3 className="text-lg font-semibold text-green-700 mt-6">Confidence Assessment</h3>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Overall Confidence:</span>
-                    <div className="flex items-center">
-                      <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
-                        <div className="bg-green-600 h-2 rounded-full w-4/5"></div>
-                      </div>
-                      <span>80%</span>
+                  {ml_result.title?.sources && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-2">Sources</h3>
+                      <p className="text-gray-700">{ml_result.title?.sources}</p>
+                    </div>
+                  )}
+
+                  {ml_result.title?.reasoning && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">Reasoning</h3>
+                      <p className="text-gray-700">{ml_result.title?.reasoning}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activePopup === 'summary' && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Result</h3>
+                    <p className="text-gray-700">{ml_result.summary?.detailed_summary?.answer}</p>
+                  </div>
+
+                  {ml_result.summary?.detailed_summary?.sources && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-2">Sources</h3>
+                      <p className="text-gray-700">{ml_result.summary?.detailed_summary?.sources}</p>
+                    </div>
+                  )}
+
+                  {ml_result.summary?.detailed_summary?.reasoning && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">Reasoning</h3>
+                      <p className="text-gray-700">{ml_result.summary?.detailed_summary?.reasoning}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activePopup === 'abstract' && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Result</h3>
+                    <p className="text-gray-700">{ml_result.summary?.abstract?.answer}</p>
+                  </div>
+
+                  {ml_result.summary?.abstract?.sources && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-2">Sources</h3>
+                      <p className="text-gray-700">{ml_result.summary?.abstract?.sources}</p>
+                    </div>
+                  )}
+
+                  {ml_result.summary?.abstract?.reasoning && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">Reasoning</h3>
+                      <p className="text-gray-700">{ml_result.summary?.abstract?.reasoning}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activePopup === 'keywords' && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Result</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {keywords.map(tag => (
+                        <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700">
+                          <Tag size={14} className="mr-1" />
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <p className="text-sm mt-2">
-                    The model has high confidence in the accuracy of this summarization based on consistent
-                    information found throughout multiple sections of the paper, including the abstract,
-                    methodology, and results sections.
-                  </p>
+
+                  {ml_result.summary?.keywords?.sources && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-2">Sources</h3>
+                      <p className="text-gray-700">{ml_result.summary?.keywords?.sources}</p>
+                    </div>
+                  )}
+
+                  {ml_result.summary?.keywords?.reasoning && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">Reasoning</h3>
+                      <p className="text-gray-700">{ml_result.summary?.keywords?.reasoning}</p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
+      )}
+
+      {/* Overlay for slide-in panel */}
+      {activePopup && (
+        <div
+          className="fixed inset-0  bg-opacity-20 z-30"
+          onClick={() => setActivePopup(null)}
+        ></div>
       )}
     </div>
   );
 }
 
-export default PaperAnalysisPage;
+// Default export with optional props
+export default function PaperAnalysisPageWrapper(props) {
+  return <PaperAnalysisPage fileId={props.fileId || "6818350af2be2f7ba8f5fc0c"} />;
+}
