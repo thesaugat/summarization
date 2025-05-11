@@ -146,12 +146,14 @@ async def get_similar_papers(paper_id: str):
                     {"file_id": sim["target_paper_id"]}
                 )
                 if paper_details:
+                    authors_data = await ml_result_collection.find_one({"file_id": sim["target_paper_id"]})
                     similar_papers.append({
                         "paper_id": sim["target_paper_id"],
                         "title": paper_details["title"]["answer"],
-                        "relevance_keywords": round(sim["keyword_similarity"] * 10, 1),
-                        "relevance_title": round(sim["title_similarity"] * 10, 1),
-                        "relevance_summary": round(sim["summary_similarity"] * 10, 1)
+                        "relevance_keywords": sim["keyword_similarity"],
+                        "relevance_title": sim["title_similarity"],
+                        "relevance_summary": sim["summary_similarity"],
+                        "authors": authors_data["author"]["answer"]
                     })
             return similar_papers
 
@@ -196,21 +198,31 @@ async def get_similar_papers(paper_id: str):
                     )
                 similarity_results = await response.json()
 
+        # Round similarity percentage to 1 decimal places
+        for similarity in similarity_results:
+            # Convert similarity scores to percentage
+            for key in ("relevance_title", "relevance_summary", "relevance_keywords"):
+                similarity[key] = round(similarity[key] * 100, 1)
+            # Add authors information
+            authors_data = await ml_result_collection.find_one({"file_id": similarity["paper_id"]})
+            similarity["authors"] = authors_data["author"]["answer"]
+
         # Save results to database
         similarity_docs = [
             PaperSimilarity(
                 source_paper_id=paper_id,
                 target_paper_id=result["paper_id"],
-                keyword_similarity=result["relevance_keywords"] / 10,
-                title_similarity=result["relevance_title"] / 10,
-                summary_similarity=result["relevance_summary"] / 10
+                keyword_similarity=result["relevance_keywords"],
+                title_similarity=result["relevance_title"],
+                summary_similarity=result["relevance_summary"],
             ).dict()
-            for result in similarity_results["similarities"]
+            for result in similarity_results
         ]
         if similarity_docs:
             await similarity_collection.insert_many(similarity_docs)
 
-        return similarity_results["similarities"]
+        return similarity_results
 
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
