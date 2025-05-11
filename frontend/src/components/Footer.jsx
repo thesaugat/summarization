@@ -17,7 +17,9 @@ const Footer = () => {
             </div>
 
             <p className="text-sm text-gray-600">
-              A research paper analysis tool developed as a capstone project at UOW.
+              iPaper is a smart research assistant designed to help you manage and analyze academic papers efficiently.
+              It summarizes content instantly and organizes papers by content similarity for easier exploration.
+              Developed as a capstone project at the University of Wollongong.
             </p>
 
             <p className="text-xs text-gray-500 mt-4">

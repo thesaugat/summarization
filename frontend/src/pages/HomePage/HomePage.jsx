@@ -11,8 +11,8 @@ const HomePage = () => {
         <section className="bg-gradient-to-r from-green-500 to-blue-600 py-16">
           <div className="container mx-auto px-4 max-w-5xl">
             <div className="text-center">
-              <h1 className="text-4xl font-bold text-white mb-4">Paper Summarizer AI</h1>
-              <p className="text-xl text-white mb-8">Upload your research paper for instant, smart summarization</p>
+              <h1 className="text-4xl font-bold text-white mb-4">Paper Analysis AI</h1>
+              <p className="text-xl text-white mb-8">Upload your research paper for instant summaries and intelligent analysis</p>
               <a href="/file-upload">
                 <button className="bg-white text-blue-600 font-medium py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
                   Upload Paper
@@ -30,7 +30,7 @@ const HomePage = () => {
               <FeatureCard
                 icon="📄"
                 title="Upload PDF"
-                description="Upload your research paper in PDF format (max 10MB)"
+                description="Upload your research paper in PDF format (max 50MB)"
               />
               <FeatureCard
                 icon="🤖"
@@ -40,7 +40,7 @@ const HomePage = () => {
               <FeatureCard
                 icon="📊"
                 title="Get Summary"
-                description="Review an intelligent summary with key points and paper recommendations"
+                description="Review an intelligent summary with key points and similar paper recommendations"
               />
             </div>
           </div>
@@ -57,7 +57,7 @@ const HomePage = () => {
                 </div>
                 <a href="/file-upload">
                   <button className="bg-green-500 text-white font-medium py-3 px-8 rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-                    Start Summarizing
+                    Start Analysing
                   </button>
                 </a>
               </div>

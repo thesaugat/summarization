@@ -183,8 +183,8 @@ export default function UploadComponent() {
     <div className="min-h-screen flex flex-col items-center pt-32 pb-16 px-4 bg-gray-50">
       <div className="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white text-center">Paper Summarizer AI</h1>
-          <p className="text-indigo-100 mt-2 text-center">Upload your research paper for instant, smart summarization</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white text-center">Paper Analysis AI</h1>
+          <p className="text-indigo-100 mt-2 text-center">Upload your research paper for instant summaries and intelligent analysis</p>
         </div>
 
         <div className="p-8">
@@ -273,7 +273,7 @@ export default function UploadComponent() {
 
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm mb-2">
-              <span className="font-medium">Accepted format:</span> PDF (max 10MB)
+              <span className="font-medium">Accepted format:</span> PDF (max 50MB)
             </p>
             <p className="text-gray-500 text-xs">
               Your document will be processed securely and privately
