@@ -155,6 +155,15 @@ async def get_similar_papers(paper_id: str):
                         "relevance_summary": sim["summary_similarity"],
                         "authors": authors_data["author"]["answer"]
                     })
+            
+            # Sort by average similarity
+            similar_papers.sort(
+                key=lambda x: (
+                    x["relevance_keywords"] + x["relevance_title"] + x["relevance_summary"]
+                )
+                / 3,
+                reverse=True,
+            )
             return similar_papers
 
         # Get target paper details
@@ -220,6 +229,15 @@ async def get_similar_papers(paper_id: str):
         ]
         if similarity_docs:
             await similarity_collection.insert_many(similarity_docs)
+
+        # Sort by average similarity
+        similarity_results.sort(
+            key=lambda x: (
+                x["relevance_keywords"] + x["relevance_title"] + x["relevance_summary"]
+            )
+            / 3,
+            reverse=True,
+        )
 
         return similarity_results
 

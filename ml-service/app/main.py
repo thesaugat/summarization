@@ -562,15 +562,6 @@ class RecommendationService:
         # Limit result to top 5
         results = results[:5]
 
-        # Sort by average similarity
-        results.sort(
-            key=lambda x: (
-                x["relevance_keywords"] + x["relevance_title"] + x["relevance_summary"]
-            )
-            / 3,
-            reverse=True,
-        )
-
         # Set negative scores to zero
         results = [dict(result, 
             relevance_keywords=max(0, result["relevance_keywords"]),
