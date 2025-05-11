@@ -149,7 +149,7 @@ const RelatedPapersDemo = ({ papers }) => {
                                 <div className="flex justify-between items-start">
                                     <div className="flex-1">
                                         <h3 className="font-medium text-gray-900 line-clamp-1">{paper.title}</h3>
-                                        <p className="text-sm text-gray-600 mt-1">{paper.authors ?? "Saugat, Manoj, add the, author field"}</p>
+                                        <p className="text-sm text-gray-600 mt-1">{paper.authors ?? "N/A"}</p>
                                     </div>
                                     <div className="flex flex-col items-end ml-4">
                                         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${Number(overallRelevance) < 10 ? 'bg-red-100 text-red-800' :
