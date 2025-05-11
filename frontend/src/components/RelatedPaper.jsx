@@ -6,35 +6,41 @@ const RelatedPapersDemo = ({ papers }) => {
     const [showChart, setShowChart] = useState(true);
     const [expandedPaper, setExpandedPaper] = useState(null);
 
-    // Normalize to 0–100%
-    const normalizeRelevance = (value) => Math.min(value, 100);
+    // Use values as they are (already percentages)
+    const getPercentValue = (value) => {
+        // Ensure the value is a number and not undefined
+        const numValue = Number(value);
+        return isNaN(numValue) ? 0 : numValue;
+    };
 
-    // Prepare chart data
+    // Prepare chart data with adaptable axis for low values
     const prepareChartData = () => {
+        // Set a limit for paper title length in chart
         const paperLabels = papers.map((paper, idx) => {
-            const shortTitle = paper.title.length > 10 ? paper.title.substring(0, 10) + '...' : paper.title;
+            // Use shorter titles in chart for better display
+            const shortTitle = paper.title.length > 15 ? paper.title.substring(0, 15) + '...' : paper.title;
             return shortTitle;
         });
 
         return [
             {
-                name: 'Title Relevance',
+                name: 'Title',
                 ...papers.reduce((acc, paper, index) => {
-                    acc[paperLabels[index]] = normalizeRelevance(paper.relevance_title);
+                    acc[paperLabels[index]] = getPercentValue(paper.relevance_title);
                     return acc;
                 }, {})
             },
             {
-                name: 'Keywords Relevance',
+                name: 'Keywords',
                 ...papers.reduce((acc, paper, index) => {
-                    acc[paperLabels[index]] = normalizeRelevance(paper.relevance_keywords);
+                    acc[paperLabels[index]] = getPercentValue(paper.relevance_keywords);
                     return acc;
                 }, {})
             },
             {
-                name: 'Summary Relevance',
+                name: 'Summary',
                 ...papers.reduce((acc, paper, index) => {
-                    acc[paperLabels[index]] = normalizeRelevance(paper.relevance_summary);
+                    acc[paperLabels[index]] = getPercentValue(paper.relevance_summary);
                     return acc;
                 }, {})
             }
@@ -48,7 +54,7 @@ const RelatedPapersDemo = ({ papers }) => {
         summary: 'bg-green-600'
     };
 
-    // Custom Tooltip
+
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             const paperTitle = payload[0].name;
@@ -59,10 +65,14 @@ const RelatedPapersDemo = ({ papers }) => {
             if (paper) {
                 return (
                     <div className="bg-white p-3 shadow-md rounded-md border border-gray-200">
-                        <p className="font-medium text-sm mb-1">{paper.title}</p>
+                        <p className="font-medium text-sm mb-1 truncate max-w-xs">{paper.title}</p>
                         <p className="text-xs text-gray-500">{paper.authors}</p>
                         <div className="mt-2 pt-2 border-t border-gray-100">
-                            <p className="text-sm text-gray-600">{label}: <span className="font-medium">{normalizeRelevance(payload[0].value).toFixed(1)}%</span></p>
+                            <p className="text-sm text-gray-600">
+                                {label}: <span className={`font-medium ${getPercentValue(payload[0].value) < 10 ? 'text-red-600' : getPercentValue(payload[0].value) < 50 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                    {getPercentValue(payload[0].value).toFixed(1)}%
+                                </span>
+                            </p>
                         </div>
                     </div>
                 );
@@ -91,7 +101,12 @@ const RelatedPapersDemo = ({ papers }) => {
                     <ResponsiveContainer width="100%" height={250}>
                         <BarChart data={prepareChartData()} barGap={2} barSize={15}>
                             <XAxis dataKey="name" />
-                            <YAxis domain={[0, 100]} />
+                            <YAxis
+                                domain={[0, 100]}
+                                allowDecimals={false}
+                                tickCount={6}
+                                tickFormatter={(value) => `${value}%`}
+                            />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend wrapperStyle={{ paddingTop: 15 }} />
                             {papers.map((paper, index) => {
@@ -106,6 +121,8 @@ const RelatedPapersDemo = ({ papers }) => {
                                         name={shortTitle}
                                         fill={`hsl(${(index * 40) + 200}, 70%, 55%)`}
                                         radius={[4, 4, 0, 0]}
+                                        // Add minimum bar height for low values for better visibility
+                                        minPointSize={3}
                                     />
                                 );
                             })}
@@ -116,10 +133,10 @@ const RelatedPapersDemo = ({ papers }) => {
 
             <div className="space-y-4">
                 {papers.map((paper, index) => {
-                    const title = normalizeRelevance(paper.relevance_title);
-                    const keywords = normalizeRelevance(paper.relevance_keywords);
-                    const summary = normalizeRelevance(paper.relevance_summary);
-                    const overallRelevance = Math.round((title + keywords + summary) / 3);
+                    const title = getPercentValue(paper.relevance_title);
+                    const keywords = getPercentValue(paper.relevance_keywords);
+                    const summary = getPercentValue(paper.relevance_summary);
+                    const overallRelevance = ((title + keywords + summary) / 3).toFixed(1);
                     const isExpanded = expandedPaper === index;
 
                     return (
@@ -132,10 +149,13 @@ const RelatedPapersDemo = ({ papers }) => {
                                 <div className="flex justify-between items-start">
                                     <div className="flex-1">
                                         <h3 className="font-medium text-gray-900 line-clamp-1">{paper.title}</h3>
-                                        <p className="text-sm text-gray-600 mt-1">{paper.authors ?? "Manoj, Saugat and Fxing"}</p>
+                                        <p className="text-sm text-gray-600 mt-1">{paper.authors ?? "Saugat, Manoj, add the, author field"}</p>
                                     </div>
                                     <div className="flex flex-col items-end ml-4">
-                                        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${Number(overallRelevance) < 10 ? 'bg-red-100 text-red-800' :
+                                            Number(overallRelevance) < 50 ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-green-100 text-green-800'
+                                            }`}>
                                             {overallRelevance}% match
                                         </span>
                                         <div className="mt-2 text-xs text-gray-500 flex items-center">
@@ -155,12 +175,20 @@ const RelatedPapersDemo = ({ papers }) => {
                                                 <div key={i} className="flex flex-col">
                                                     <div className="flex justify-between mb-1">
                                                         <span className="text-xs font-medium text-gray-700">{item.label}</span>
-                                                        <span className="text-xs font-medium text-gray-700">{item.value.toFixed(0)}%</span>
+                                                        <span className={`text-xs font-medium ${item.value < 10 ? 'text-red-600' :
+                                                            item.value < 50 ? 'text-yellow-600' :
+                                                                'text-green-600'
+                                                            }`}>
+                                                            {item.value.toFixed(1)}%
+                                                        </span>
                                                     </div>
                                                     <div className="w-full bg-gray-200 rounded-full h-2">
                                                         <div
                                                             className={`${item.color} h-2 rounded-full transition-all duration-1000 ease-out`}
-                                                            style={{ width: `${item.value}%` }}
+                                                            style={{
+                                                                width: `${Math.max(item.value, 0.5)}%`,
+                                                                minWidth: '2px' // Ensure even very small values have some visual representation
+                                                            }}
                                                         ></div>
                                                     </div>
                                                 </div>
@@ -169,7 +197,7 @@ const RelatedPapersDemo = ({ papers }) => {
 
                                         <div className="mt-3 pt-2 border-t border-gray-100">
                                             <p className="text-sm text-gray-700 line-clamp-3">
-                                                {paper.abstract ?? "Please Fix This Manoj add abstract few lines"}
+                                                {paper.abstract || "Abstract not available"}
                                             </p>
                                         </div>
 

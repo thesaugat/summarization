@@ -304,7 +304,7 @@ function PaperAnalysisPage({ fileId }) {
                     )}
                   </div>
                 </div> */}
-                <RelatedPapersDemo papers={relatedPapers} />;
+                <RelatedPapersDemo papers={relatedPapers} />
 
 
                 <div>
