@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
+import RelatedPapersDemo from "../../components/RelatedPaper";
 
 function PaperAnalysisPage({ fileId }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -147,7 +148,7 @@ function PaperAnalysisPage({ fileId }) {
                 <div className="flex gap-3 mb-6 text-sm">
                   <span className="text-gray-500">Processed On: {new Date(ml_result.processed_at).toLocaleDateString()}</span>
                   <span className="text-gray-500">•</span>
-                  <span className="text-gray-500">ID: {ml_result.file_id}</span>
+                  <span className="text-gray-500">{ml_result.author?.answer}</span>
                 </div>
 
                 <div className="relative">
@@ -213,7 +214,7 @@ function PaperAnalysisPage({ fileId }) {
 
               {/* Right Column - Analysis */}
               <div className="flex-1 lg:border-l lg:pl-8 space-y-8">
-                <div>
+                {/* <div>
                   <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
                   <div className="space-y-3">
                     {loadingRelated ? (
@@ -302,7 +303,9 @@ function PaperAnalysisPage({ fileId }) {
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
+                <RelatedPapersDemo papers={relatedPapers} />;
+
 
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Key Points</h2>

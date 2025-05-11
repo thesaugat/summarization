@@ -18,7 +18,8 @@
     "react-circular-progressbar": "^2.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.3.0",
-    "superagent": "^10.2.0"
+    "superagent": "^10.2.0",
+    "recharts": "^2.15.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
