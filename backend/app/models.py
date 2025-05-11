@@ -29,6 +29,7 @@ class Summary(BaseModel):
 
 class MLResponse(BaseModel):
     title: FieldData
+    author: FieldData
     summary: Summary
     file_id: Optional[str] = None
     processed_at: Optional[datetime] = None
@@ -42,5 +43,7 @@ class FileMeta(BaseModel):
 class PaperSimilarity(BaseModel):
     source_paper_id: str
     target_paper_id: str
-    similarity_score: float
+    keyword_similarity: float
+    title_similarity: float
+    summary_similarity: float
     computed_at: datetime = Field(default_factory=datetime.utcnow)

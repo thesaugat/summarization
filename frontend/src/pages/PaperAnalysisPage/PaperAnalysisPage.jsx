@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
+import RelatedPapersDemo from "../../components/RelatedPaper";
 
 function PaperAnalysisPage({ fileId }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -40,7 +41,7 @@ function PaperAnalysisPage({ fileId }) {
   useEffect(() => {
     const fetchRelatedPapers = async () => {
       if (!paperData?.ml_result?.file_id) return;
-      
+
       setLoadingRelated(true);
       try {
         const response = await fetch(`http://localhost:8000/similar-papers/${paperData.ml_result.file_id}`);
@@ -147,7 +148,7 @@ function PaperAnalysisPage({ fileId }) {
                 <div className="flex gap-3 mb-6 text-sm">
                   <span className="text-gray-500">Processed On: {new Date(ml_result.processed_at).toLocaleDateString()}</span>
                   <span className="text-gray-500">•</span>
-                  <span className="text-gray-500">ID: {ml_result.file_id}</span>
+                  <span className="text-gray-500">{ml_result.author?.answer}</span>
                 </div>
 
                 <div className="relative">
@@ -192,10 +193,120 @@ function PaperAnalysisPage({ fileId }) {
                     <Download size={16} /> Download PDF
                   </button>
                 </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    Abstract
+                    {ml_result.summary?.abstract?.reasoning && (
+                      <button
+                        onClick={() => toggleReasoningPopup('abstract')}
+                        className="ml-2 p-1 bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors"
+                      >
+                        <Info size={16} />
+                      </button>
+                    )}
+                  </h2>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <p className="text-gray-700">{ml_result.summary?.abstract?.answer || "No abstract available."}</p>
+                  </div>
+                </div>
+
               </div>
 
               {/* Right Column - Analysis */}
               <div className="flex-1 lg:border-l lg:pl-8 space-y-8">
+                {/* <div>
+                  <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
+                  <div className="space-y-3">
+                    {loadingRelated ? (
+                      <div className="flex justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                      </div>
+                    ) : relatedPapers.length > 0 ? (
+                      <>
+                        {relatedPapers.map((paper, index) => (
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                            <div className="flex flex-col">
+                              <div className="flex justify-between items-start mb-3">
+                                <div>
+                                  <h3 className="font-medium text-gray-900">{paper.title}</h3>
+                                  <p className="text-sm text-gray-600 mt-1">{paper.authors}</p>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-2 mt-2">
+                                <div className="flex flex-col">
+                                  <div className="flex justify-between mb-1">
+                                    <span className="text-xs font-medium text-gray-700">Title</span>
+                                    <span className="text-xs font-medium text-gray-700">{paper.relevance_title * 20}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className="bg-blue-600 h-2 rounded-full"
+                                      style={{ width: `${paper.relevance_title * 20}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-col">
+                                  <div className="flex justify-between mb-1">
+                                    <span className="text-xs font-medium text-gray-700">Keywords</span>
+                                    <span className="text-xs font-medium text-gray-700">{paper.relevance_keywords * 20}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className="bg-yellow-500 h-2 rounded-full"
+                                      style={{ width: `${paper.relevance_keywords * 20}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-col">
+                                  <div className="flex justify-between mb-1">
+                                    <span className="text-xs font-medium text-gray-700">Summary</span>
+                                    <span className="text-xs font-medium text-gray-700">{paper.relevance_summary * 20}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className="bg-green-600 h-2 rounded-full"
+                                      style={{ width: `${paper.relevance_summary * 20}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100">
+                                <span className="text-xs text-gray-500">Overall Relevance</span>
+                                <div className="flex items-center">
+                                  <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div
+                                      className="bg-purple-600 h-2 rounded-full"
+                                      style={{
+                                        width: `${((paper.relevance_title + paper.relevance_keywords + paper.relevance_summary) / 3 * 20)}%`
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs text-gray-600 whitespace-nowrap">
+                                    {Math.round((paper.relevance_title + paper.relevance_keywords + paper.relevance_summary) / 3 * 20)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <button className="text-green-600 flex items-center mt-2 text-sm font-medium hover:text-green-800 transition-colors">
+                          View more related papers <ArrowRight size={16} className="ml-1" />
+                        </button>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No related papers found
+                      </div>
+                    )}
+                  </div>
+                </div> */}
+                <RelatedPapersDemo papers={relatedPapers} />
+
+
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Key Points</h2>
                   <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -214,24 +325,8 @@ function PaperAnalysisPage({ fileId }) {
                   </div>
                 </div>
 
-                <div>
-                  <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    Abstract
-                    {ml_result.summary?.abstract?.reasoning && (
-                      <button
-                        onClick={() => toggleReasoningPopup('abstract')}
-                        className="ml-2 p-1 bg-green-100 rounded-full text-green-600 hover:bg-green-200 transition-colors"
-                      >
-                        <Info size={16} />
-                      </button>
-                    )}
-                  </h2>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <p className="text-gray-700">{ml_result.summary?.abstract?.answer || "No abstract available."}</p>
-                  </div>
-                </div>
 
-                <div>
+                {/* <div>
                   <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
                   <div className="space-y-3">
                     {loadingRelated ? (
@@ -270,6 +365,7 @@ function PaperAnalysisPage({ fileId }) {
                     )}
                   </div>
                 </div>
+             */}
               </div>
             </div>
           </div>

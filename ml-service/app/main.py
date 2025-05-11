@@ -218,6 +218,46 @@ class EnhancedPDFSummarizer:
 
         return title
 
+    def extract_author(self, chunks: List[Document]) -> str:
+        """
+        Extract the author(s) from the document chunks
+
+        Args:
+            chunks: List of document chunks
+
+        Returns:
+            Extracted author(s)
+        """
+        # Use first few chunks where author info is typically found
+        first_chunks = chunks[:3]
+
+        # Concatenate the content of the first chunks
+        content = "\n\n".join([chunk.page_content for chunk in first_chunks])
+
+        author_prompt = ChatPromptTemplate.from_template(
+            """
+            You are an expert at extracting author names from academic documents.
+            Examine the following text from the beginning of the document and extract the AUTHOR NAME(S) ONLY.
+            
+            TEXT:
+            {text}
+            
+            INSTRUCTIONS:
+            1. Return ONLY the full name(s) of the author(s).
+            2. If there are multiple authors, separate them with commas.
+            3. Do NOT include titles (e.g., Dr., Prof.) or affiliations (e.g., university names).
+            4. If you cannot find any author names, respond with "Unknown Author".
+            5. Do not include any explanation, headers, or other text.
+            """
+        )
+
+        author_chain = author_prompt | self.llm.with_structured_output(
+            AnswerWithSources
+        )
+        author = author_chain.invoke({"text": content})
+
+        return author
+
     def normalize_abstract_header(self, text: str) -> str:
         # Fix spaced-out versions of "abstract" (e.g., "a b s t r a c t .")
         text = re.sub(
@@ -351,12 +391,12 @@ class EnhancedPDFSummarizer:
     2. The abstract may be labeled as "Abstract", "Summary", "Executive Summary", or "Overview".
     3. Be flexible and look for sections that serve the purpose of an abstract, even if the heading is slightly different.
     4. Do NOT rewrite, rephrase, or summarize the abstract.
-    5. If no abstract or similar section is found, respond with: "No abstract found."
-    6. DO NOT include any content outside the abstract.
+    5. DO NOT include any content outside the abstract.
 
     ABSTRACT:
     """
         )
+        # 5. If no abstract or similar section is found, respond with: "No abstract found."
 
         # Create chains for each summarization task
         summary_chain = (
@@ -435,12 +475,15 @@ class EnhancedPDFSummarizer:
             # Extract title
             title = self.extract_title(chunks)
 
+            # Extract Author
+            author = self.extract_author(chunks)
+
             # Generate comprehensive summary
             summary_info = self.generate_summary(retriever)
             print(summary_info)
 
             # Create a complete output dictionary
-            output_dict = {"title": title, "summary": summary_info}
+            output_dict = {"title": title, "author": author, "summary": summary_info}
 
             # Clean up vector store to free disk space
             if os.path.exists(vectorstore_path):
@@ -458,64 +501,88 @@ class RecommendationService:
     def __init__(self):
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
+    def _compute_pairwise_similarity(self, source_text: str, target_text: str) -> float:
+        """Helper method to compute similarity between two texts"""
+        embeddings = self.model.encode(
+            [source_text, target_text], convert_to_tensor=True
+        )
+        similarity = cosine_similarity(
+            embeddings[0].cpu().detach().numpy().reshape(1, -1),
+            embeddings[1].cpu().detach().numpy().reshape(1, -1),
+        )[0][0]
+
+        return similarity
+
     def compute_similarity(
-        self, target_keywords: List[str], papers_keywords: Dict[str, List[str]]
-    ) -> List[Tuple[str, float]]:
+        self, target_paper: dict, papers_data: List[dict]
+    ) -> List[dict]:
         """
-        Compute similarity between target paper and other papers using BERT embeddings
+        Compute similarities between target paper and other papers using pairwise comparisons
 
         Args:
-            target_keywords: Keywords of the target paper
-            papers_keywords: Dictionary of paper_id -> keywords for other papers
+            target_paper: Dict containing 'keywords', 'title', and 'summary' of target paper
+            papers_data: List of dicts containing paper info (id, keywords, title, summary)
 
         Returns:
-            List of tuples (paper_id, similarity_score) sorted by similarity
+            List of dicts with paper_id and similarity scores
         """
-        # Convert keywords to text format
-        target_text = " ".join(target_keywords)
-        paper_texts = [" ".join(kw) for kw in papers_keywords.values()]
-        paper_ids = list(papers_keywords.keys())
+        # Prepare target texts
+        target_keywords_text = " ".join(target_paper["keywords"])
+        target_title_text = target_paper["title"]
+        target_summary_text = target_paper["summary"]
 
-        # Generate embeddings
-        target_embedding = self.model.encode([target_text], convert_to_tensor=True)
-        paper_embeddings = self.model.encode(paper_texts, convert_to_tensor=True)
+        results = []
 
-        # Compute similarities
-        similarities = cosine_similarity(
-            target_embedding.cpu().detach().numpy(),
-            paper_embeddings.cpu().detach().numpy(),
-        )[0]
+        # Compare target paper with each paper individually
+        for paper in papers_data:
+            paper_keywords_text = " ".join(paper["keywords"])
+            paper_title_text = paper["title"]
+            paper_summary_text = paper["summary"]
 
-        # Create and sort results
-        similarity_scores = list(zip(paper_ids, similarities))
-        similarity_scores.sort(key=lambda x: x[1], reverse=True)
-        similarity_scores = [
-            (pid, round(float(score * 100), 3)) for pid, score in similarity_scores
-        ]
-        # Limit to top 10 results
-        similarity_scores = similarity_scores[:10]
-        return similarity_scores
+            # Compute similarities for each feature
+            keyword_similarity = self._compute_pairwise_similarity(
+                target_keywords_text, paper_keywords_text
+            )
+            title_similarity = self._compute_pairwise_similarity(
+                target_title_text, paper_title_text
+            )
+            summary_similarity = self._compute_pairwise_similarity(
+                target_summary_text, paper_summary_text
+            )
+
+            results.append(
+                {
+                    "paper_id": paper["id"],
+                    "title": paper["title"],
+                    "relevance_keywords": round(float(keyword_similarity * 10), 1),
+                    "relevance_title": round(float(title_similarity * 10), 1),
+                    "relevance_summary": round(float(summary_similarity * 10), 1),
+                }
+            )
+
+        # Sort by average similarity
+        results.sort(
+            key=lambda x: (
+                x["relevance_keywords"] + x["relevance_title"] + x["relevance_summary"]
+            )
+            / 3,
+            reverse=True,
+        )
+
+        # Return top 5 results
+        return results[:5]
 
 
 @app.post("/get-similarities")
-async def get_similarities(
-    target_keywords: List[str], papers_keywords: Dict[str, List[str]]
-):
+async def get_similarities(target_paper: dict, papers_data: List[dict]):
     """
-    Compute similarity scores between target paper and other papers
+    Compute similarity scores between target paper and other papers using multiple features
     """
     try:
-        # Initialize recommendation service
         recommendation_service = RecommendationService()
-
         similarity_scores = recommendation_service.compute_similarity(
-            target_keywords, papers_keywords
+            target_paper, papers_data
         )
-        return {
-            "similarities": [
-                {"paper_id": pid, "similarity": score}
-                for pid, score in similarity_scores
-            ]
-        }
+        return {"similarities": similarity_scores}
     except Exception as e:
         return {"error": str(e)}
