@@ -501,25 +501,23 @@ class RecommendationService:
     def __init__(self):
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    def _compute_single_similarity(
-        self, source_text: str, target_texts: List[str]
-    ) -> List[float]:
-        """Helper method to compute similarity between one source and multiple targets"""
-        source_embedding = self.model.encode([source_text], convert_to_tensor=True)
-        target_embeddings = self.model.encode(target_texts, convert_to_tensor=True)
+    def _compute_pairwise_similarity(self, source_text: str, target_text: str) -> float:
+        """Helper method to compute similarity between two texts"""
+        embeddings = self.model.encode(
+            [source_text, target_text], convert_to_tensor=True
+        )
+        similarity = cosine_similarity(
+            embeddings[0].cpu().detach().numpy().reshape(1, -1),
+            embeddings[1].cpu().detach().numpy().reshape(1, -1),
+        )[0][0]
 
-        similarities = cosine_similarity(
-            source_embedding.cpu().detach().numpy(),
-            target_embeddings.cpu().detach().numpy(),
-        )[0]
-
-        return similarities
+        return similarity
 
     def compute_similarity(
         self, target_paper: dict, papers_data: List[dict]
     ) -> List[dict]:
         """
-        Compute similarities between target paper and other papers using multiple features
+        Compute similarities between target paper and other papers using pairwise comparisons
 
         Args:
             target_paper: Dict containing 'keywords', 'title', and 'summary' of target paper
@@ -528,36 +526,37 @@ class RecommendationService:
         Returns:
             List of dicts with paper_id and similarity scores
         """
-        # Prepare texts for comparison
+        # Prepare target texts
         target_keywords_text = " ".join(target_paper["keywords"])
         target_title_text = target_paper["title"]
         target_summary_text = target_paper["summary"]
 
-        papers_keywords = [" ".join(p["keywords"]) for p in papers_data]
-        papers_titles = [p["title"] for p in papers_data]
-        papers_summaries = [p["summary"] for p in papers_data]
-
-        # Compute similarities for each feature
-        keyword_similarities = self._compute_single_similarity(
-            target_keywords_text, papers_keywords
-        )
-        title_similarities = self._compute_single_similarity(
-            target_title_text, papers_titles
-        )
-        summary_similarities = self._compute_single_similarity(
-            target_summary_text, papers_summaries
-        )
-
-        # Combine results
         results = []
-        for i, paper in enumerate(papers_data):
+
+        # Compare target paper with each paper individually
+        for paper in papers_data:
+            paper_keywords_text = " ".join(paper["keywords"])
+            paper_title_text = paper["title"]
+            paper_summary_text = paper["summary"]
+
+            # Compute similarities for each feature
+            keyword_similarity = self._compute_pairwise_similarity(
+                target_keywords_text, paper_keywords_text
+            )
+            title_similarity = self._compute_pairwise_similarity(
+                target_title_text, paper_title_text
+            )
+            summary_similarity = self._compute_pairwise_similarity(
+                target_summary_text, paper_summary_text
+            )
+
             results.append(
                 {
                     "paper_id": paper["id"],
                     "title": paper["title"],
-                    "relevance_keywords": round(float(keyword_similarities[i] * 10), 1),
-                    "relevance_title": round(float(title_similarities[i] * 10), 1),
-                    "relevance_summary": round(float(summary_similarities[i] * 10), 1),
+                    "relevance_keywords": round(float(keyword_similarity * 10), 1),
+                    "relevance_title": round(float(title_similarity * 10), 1),
+                    "relevance_summary": round(float(summary_similarity * 10), 1),
                 }
             )
 
