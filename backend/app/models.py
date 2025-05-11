@@ -42,5 +42,9 @@ class FileMeta(BaseModel):
 class PaperSimilarity(BaseModel):
     source_paper_id: str
     target_paper_id: str
-    similarity_score: float
+    keyword_similarity: float
+    title_similarity: float
+    summary_similarity: float
     computed_at: datetime = Field(default_factory=datetime.utcnow)
+
+
