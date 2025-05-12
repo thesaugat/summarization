@@ -392,6 +392,7 @@ class EnhancedPDFSummarizer:
     3. Be flexible and look for sections that serve the purpose of an abstract, even if the heading is slightly different.
     4. Do NOT rewrite, rephrase, or summarize the abstract.
     5. DO NOT include any content outside the abstract.
+    6. If no abstract or similar section is found, respond with: "No abstract found."
 
     ABSTRACT:
     """
@@ -554,23 +555,26 @@ class RecommendationService:
                 {
                     "paper_id": paper["id"],
                     "title": paper["title"],
-                    "relevance_keywords": round(float(keyword_similarity * 10), 1),
-                    "relevance_title": round(float(title_similarity * 10), 1),
-                    "relevance_summary": round(float(summary_similarity * 10), 1),
+                    "relevance_keywords": float(keyword_similarity),
+                    "relevance_title": float(title_similarity),
+                    "relevance_summary": float(summary_similarity),
                 }
             )
+        # Limit result to top 5
+        results = results[:5]
 
-        # Sort by average similarity
-        results.sort(
-            key=lambda x: (
-                x["relevance_keywords"] + x["relevance_title"] + x["relevance_summary"]
+        # Set negative scores to zero
+        results = [
+            dict(
+                result,
+                relevance_keywords=max(0, result["relevance_keywords"]),
+                relevance_title=max(0, result["relevance_title"]),
+                relevance_summary=max(0, result["relevance_summary"]),
             )
-            / 3,
-            reverse=True,
-        )
+            for result in results
+        ]
 
-        # Return top 5 results
-        return results[:5]
+        return results
 
 
 @app.post("/get-similarities")
@@ -583,6 +587,6 @@ async def get_similarities(target_paper: dict, papers_data: List[dict]):
         similarity_scores = recommendation_service.compute_similarity(
             target_paper, papers_data
         )
-        return {"similarities": similarity_scores}
+        return similarity_scores
     except Exception as e:
         return {"error": str(e)}
