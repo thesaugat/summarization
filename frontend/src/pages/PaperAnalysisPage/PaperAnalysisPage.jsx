@@ -304,7 +304,27 @@ function PaperAnalysisPage({ fileId }) {
                     )}
                   </div>
                 </div> */}
-                <RelatedPapersDemo papers={relatedPapers} />
+
+
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
+                  <div className="space-y-3">
+                    {loadingRelated ? (
+                      <div className="flex justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                      </div>
+                    ) : relatedPapers.length > 0 ? (
+                      <>
+                        <RelatedPapersDemo papers={relatedPapers} />
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No related papers found
+                      </div>
+                    )}
+                  </div>
+                </div>
+
 
 
                 <div>
@@ -326,46 +346,6 @@ function PaperAnalysisPage({ fileId }) {
                 </div>
 
 
-                {/* <div>
-                  <h2 className="text-xl font-semibold mb-4">Related Papers</h2>
-                  <div className="space-y-3">
-                    {loadingRelated ? (
-                      <div className="flex justify-center items-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
-                      </div>
-                    ) : relatedPapers.length > 0 ? (
-                      <>
-                        {relatedPapers.map((paper, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-medium text-gray-900">{paper.title}</h3>
-                                <p className="text-sm text-gray-600 mt-1">{paper.authors}</p>
-                              </div>
-                              <div className="flex items-center ml-4">
-                                <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                  <div
-                                    className="bg-green-600 h-2 rounded-full"
-                                    style={{ width: `${paper.relevance}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-sm text-gray-600 whitespace-nowrap">{paper.relevance}%</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        <button className="text-green-600 flex items-center mt-2 text-sm font-medium hover:text-green-800 transition-colors">
-                          View more related papers <ArrowRight size={16} className="ml-1" />
-                        </button>
-                      </>
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        No related papers found
-                      </div>
-                    )}
-                  </div>
-                </div>
-             */}
               </div>
             </div>
           </div>

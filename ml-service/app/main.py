@@ -392,6 +392,7 @@ class EnhancedPDFSummarizer:
     3. Be flexible and look for sections that serve the purpose of an abstract, even if the heading is slightly different.
     4. Do NOT rewrite, rephrase, or summarize the abstract.
     5. DO NOT include any content outside the abstract.
+    6. If no abstract or similar section is found, respond with: "No abstract found."
 
     ABSTRACT:
     """
@@ -572,11 +573,15 @@ class RecommendationService:
         )
 
         # Set negative scores to zero
-        results = [dict(result, 
-            relevance_keywords=max(0, result["relevance_keywords"]),
-            relevance_title=max(0, result["relevance_title"]),
-            relevance_summary=max(0, result["relevance_summary"])
-        ) for result in results]
+        results = [
+            dict(
+                result,
+                relevance_keywords=max(0, result["relevance_keywords"]),
+                relevance_title=max(0, result["relevance_title"]),
+                relevance_summary=max(0, result["relevance_summary"]),
+            )
+            for result in results
+        ]
 
         return results
 
