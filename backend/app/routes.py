@@ -68,7 +68,7 @@ async def list_files():
 
 
 @router.get("/files-list")
-async def list_files_with_summaries():
+async def get_files_list():
     try:
         files_cursor = await file_collection.find().to_list(length=None)
         results = []
