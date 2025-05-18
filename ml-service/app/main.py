@@ -380,22 +380,22 @@ class EnhancedPDFSummarizer:
         # )
         abstract_prompt = ChatPromptTemplate.from_template(
             """
-    You are an expert at analyzing academic and professional documents.
-    Based on the following document excerpts, extract the original abstract if it is present.
+            You are an expert at analyzing academic and professional documents.
+            Based on the following document excerpts, extract the original abstract if it is present.
 
-    DOCUMENT EXCERPTS:
-    {context}
+            DOCUMENT EXCERPTS:
+            {context}
 
-    INSTRUCTIONS:
-    1. Extract the abstract exactly as it appears in the document.
-    2. The abstract may be labeled as "Abstract", "Summary", "Executive Summary", or "Overview".
-    3. Be flexible and look for sections that serve the purpose of an abstract, even if the heading is slightly different.
-    4. Do NOT rewrite, rephrase, or summarize the abstract.
-    5. DO NOT include any content outside the abstract.
-    6. If no abstract or similar section is found, respond with: "No abstract found."
+            INSTRUCTIONS:
+            1. Extract the abstract exactly as it appears in the document.
+            2. The abstract may be labeled as "Abstract", "Summary", "Executive Summary", or "Overview".
+            3. Be flexible and look for sections that serve the purpose of an abstract, even if the heading is slightly different.
+            4. Do NOT rewrite, rephrase, or summarize the abstract.
+            5. DO NOT include any content outside the abstract.
+            6. If no abstract or similar section is found, respond with: "No abstract found."
 
-    ABSTRACT:
-    """
+            ABSTRACT:
+            """
         )
         # 5. If no abstract or similar section is found, respond with: "No abstract found."
 
