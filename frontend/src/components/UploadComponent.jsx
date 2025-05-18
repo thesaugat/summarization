@@ -92,7 +92,7 @@ export default function UploadComponent() {
   //     // Simulate network delay
   //     await new Promise(resolve => setTimeout(resolve, 3000));
 
-  //     const res = await fetch("http://127.0.0.1:8000/upload", {
+  //     const res = await fetch("http://127.0.0.1:8000/api/upload", {
   //       method: "POST",
   //       body: formData,
   //     });
@@ -130,7 +130,7 @@ export default function UploadComponent() {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      const res = await fetch("http://127.0.0.1:8000/upload", {
+      const res = await fetch("http://127.0.0.1:8000/api/upload", {
         method: "POST",
         body: formData,
         mode: 'cors',

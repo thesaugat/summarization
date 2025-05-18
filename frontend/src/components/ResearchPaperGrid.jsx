@@ -15,7 +15,7 @@ const PaperHistoryPage = () => {
     const fetchPapers = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8000/files-list");
+        const response = await fetch("http://localhost:8000/api/files-list");
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
