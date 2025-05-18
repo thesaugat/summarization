@@ -9,7 +9,7 @@ import uuid
 from .models import FileMeta, MLResponse, PaperSimilarity
 from .database import file_collection, ml_result_collection, similarity_collection
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 @router.post("/upload")

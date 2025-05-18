@@ -44,7 +44,7 @@ function PaperAnalysisPage({ fileId }) {
 
       setLoadingRelated(true);
       try {
-        const response = await fetch(`http://localhost:8000/similar-papers/${paperData.ml_result.file_id}`);
+        const response = await fetch(`http://localhost:8000/api/similar-papers/${paperData.ml_result.file_id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
