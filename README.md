@@ -4,6 +4,7 @@ This project is a full-stack application with a React frontend, FastAPI backend,
 
 ---
 
+
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [Summarization Service - Function Documentation](#summarize)
@@ -17,6 +18,7 @@ This project is a full-stack application with a React frontend, FastAPI backend,
    - [MongoDB](#mongodb)
 5. [Endpoints](#endpoints)
 6. [Troubleshooting](#troubleshooting)
+7. [Screenshots](#screenshots)
 
 ---
 
@@ -221,3 +223,9 @@ If you want to run individual containers for development or debugging, follow th
 | Frontend      | http://localhost:5173/       | React App         |
 | Backend (API) | http://localhost:8000/       | FastAPI           |
 | ML Service    | http://localhost:5001/| ML Endpoint       |
+
+##Screenshots
+![Summary Page Screenshot](screenshots/analysis.png)
+![History Page screenshot](screenshots/history.png)
+![Upoad Page Screenshot](screenshots/upload.png)
+![Home Page Screenshot](screenshots/homepage.png)
