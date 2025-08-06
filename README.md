@@ -2,6 +2,8 @@
 
 This project is a full-stack application with a React frontend, FastAPI backend, a machine learning service, and a MongoDB database. The application is containerized using Docker and orchestrated with Docker Compose.
 
+![Summary Page Screenshot](screenshots/analysis.png)
+
 ---
 
 
